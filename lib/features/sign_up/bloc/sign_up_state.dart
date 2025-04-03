@@ -16,6 +16,8 @@ class SignUpLoading extends SignUpState {
   const SignUpLoading({super.isPasswordObscured});
 }
 
+class SignUpSuccess extends SignUpActionState {}
+
 class SignUpFailure extends SignUpState {
   final String error;
   const SignUpFailure({required this.error, super.isPasswordObscured});

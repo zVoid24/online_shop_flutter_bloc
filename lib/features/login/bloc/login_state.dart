@@ -20,7 +20,7 @@ class LoginLoading extends LoginState {
 
 class LoginFailure extends LoginActionState {
   final String error;
-  LoginFailure({required this.error, super.isPasswordObscured});
+  const LoginFailure({required this.error, super.isPasswordObscured});
 }
 
 class LoginNavigateToSignUp extends LoginActionState {}
