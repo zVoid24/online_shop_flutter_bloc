@@ -13,6 +13,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc() : super(HomeInitial()) {
     on<HomeInitialEvent>(_onHomeInitialEvent);
     on<HomeAddToCartEvent>(_onHomeAddToCartEvent);
+    on<HomeNavigateToCartEvent>(_onHomeNavigateToCartEvent);
   }
 
   Future<void> _onHomeInitialEvent(
@@ -45,5 +46,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     } catch (e) {
       emit(HomeAddToCartStateFailure(error: 'Failed to add to cart: $e'));
     }
+  }
+
+  FutureOr<void> _onHomeNavigateToCartEvent(
+    HomeNavigateToCartEvent event,
+    Emitter<HomeState> emit,
+  ) {
+    emit(HomeNavigateToCartState());
   }
 }

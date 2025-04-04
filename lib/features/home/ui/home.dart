@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:online_shop/cart/ui/cart.dart';
 import 'package:online_shop/features/home/bloc/home_bloc.dart';
 import 'package:online_shop/features/home/ui/product_tile.dart';
 
@@ -33,6 +34,7 @@ class _HomeState extends State<Home> {
         foregroundColor: Colors.white,
         backgroundColor: Colors.black,
       ),
+      drawer: buildDrawer(context),
       body: BlocConsumer<HomeBloc, HomeState>(
         bloc: _homeBloc,
         listenWhen: (previous, current) => current is HomeActionState,
@@ -48,6 +50,11 @@ class _HomeState extends State<Home> {
           } else if (state is HomeAddToCartStateFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.error), backgroundColor: Colors.red),
+            );
+          } else if (state is HomeNavigateToCartState) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Cart()),
             );
           }
         },
@@ -75,6 +82,38 @@ class _HomeState extends State<Home> {
               return const Center(child: Text('Unknown state'));
           }
         },
+      ),
+    );
+  }
+
+  Widget buildDrawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          const DrawerHeader(
+            decoration: BoxDecoration(color: Colors.black),
+            child: Text(
+              'Menu',
+              style: TextStyle(color: Colors.white, fontSize: 24),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.home),
+            title: const Text('Home'),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.shopping_cart),
+            title: const Text('Cart'),
+            onTap: () {
+              _homeBloc.add(HomeNavigateToCartEvent());
+              Navigator.pop(context);
+            },
+          ),
+        ],
       ),
     );
   }
