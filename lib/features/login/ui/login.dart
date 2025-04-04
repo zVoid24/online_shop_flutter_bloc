@@ -70,7 +70,7 @@ class _LoginState extends State<Login> {
                 child: ListView(
                   children: [
                     Image.asset(
-                      'assets/images/undraw_bus-stop_m7q9.png',
+                      'assets/images/undraw_shopping-app_b80f.png',
                       height: 300,
                     ),
                     TextField(

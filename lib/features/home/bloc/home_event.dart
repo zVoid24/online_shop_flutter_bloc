@@ -11,3 +11,5 @@ class HomeAddToCartEvent extends HomeEvent {
   final String productId;
   HomeAddToCartEvent({required this.productId});
 }
+
+class HomeLogoutEvent extends HomeEvent {}

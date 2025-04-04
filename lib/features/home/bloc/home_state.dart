@@ -19,11 +19,11 @@ class HomeFailure extends HomeState {
   HomeFailure({required this.error});
 }
 
-class HomeNavigateToCartState extends HomeActionState {}
-
 class HomeAddToCartSuccessState extends HomeActionState {}
 
 class HomeAddToCartStateFailure extends HomeActionState {
   final String error;
   HomeAddToCartStateFailure({required this.error});
 }
+
+class HomeNavigateToCartState extends HomeActionState {}

@@ -21,12 +21,6 @@ class _HomeState extends State<Home> {
   }
 
   @override
-  void dispose() {
-    _homeBloc.close();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -111,6 +105,14 @@ class _HomeState extends State<Home> {
             onTap: () {
               _homeBloc.add(HomeNavigateToCartEvent());
               Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: const Text('Logout'),
+            onTap: () {
+              Navigator.pop(context);
+              _homeBloc.add(HomeLogoutEvent());
             },
           ),
         ],

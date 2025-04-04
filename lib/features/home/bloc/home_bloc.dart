@@ -14,6 +14,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<HomeInitialEvent>(_onHomeInitialEvent);
     on<HomeAddToCartEvent>(_onHomeAddToCartEvent);
     on<HomeNavigateToCartEvent>(_onHomeNavigateToCartEvent);
+    on<HomeLogoutEvent>(_onHomeLogoutEvent);
   }
 
   Future<void> _onHomeInitialEvent(
@@ -53,5 +54,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     Emitter<HomeState> emit,
   ) {
     emit(HomeNavigateToCartState());
+  }
+
+  FutureOr<void> _onHomeLogoutEvent(
+    HomeLogoutEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    final db = Database();
+    await db.signOut();
   }
 }
