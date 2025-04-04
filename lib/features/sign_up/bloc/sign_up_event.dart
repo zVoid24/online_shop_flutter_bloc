@@ -7,7 +7,11 @@ class SignUpButtonClicked extends SignUpEvent {
   final String name;
   final String email;
   final String password;
-  SignUpButtonClicked({required this.name, required this.email, required this.password});
+  SignUpButtonClicked({
+    required this.name,
+    required this.email,
+    required this.password,
+  });
 }
 
 class SignUpInitialEvent extends SignUpEvent {

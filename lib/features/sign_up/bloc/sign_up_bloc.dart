@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:online_shop/database/database_calls.dart';
+import 'package:online_shop/database/user_database.dart';
 
 part 'sign_up_event.dart';
 part 'sign_up_state.dart';
@@ -61,6 +62,8 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
         password: event.password,
       );
       if (user != null) {
+        final userDatabase = UserDatabase(uid: user.uid);
+        await userDatabase.createUserData(name: event.name, email: event.email);
         emit(SignUpSuccess());
       } else {
         emit(

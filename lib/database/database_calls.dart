@@ -32,12 +32,16 @@ class Database {
             email: email.trim(),
             password: password,
           );
-      return result.user;
+
+      if (result.user != null) {
+        return result.user;
+      }
     } on FirebaseAuthException catch (e) {
       throw _mapFirebaseException(e);
     } catch (e) {
       throw Exception('An unexpected error occurred during sign-up: $e');
     }
+    return null;
   }
 
   /// Maps FirebaseAuthException to user-friendly error messages.
@@ -59,6 +63,15 @@ class Database {
         return 'Email/password sign-up is not enabled.';
       default:
         return 'An error occurred: ${e.message}';
+    }
+  }
+
+  Future<User?> getCurrentUser() async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      return user;
+    } catch (e) {
+      throw Exception('Failed to get current user: $e');
     }
   }
 }
