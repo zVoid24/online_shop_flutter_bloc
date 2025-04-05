@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:online_shop/database/database_calls.dart';
-import 'package:online_shop/database/product_database.dart';
 import 'package:online_shop/database/user_database.dart';
 import 'package:online_shop/models/product.dart';
 
