@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:online_shop/features/cart/ui/cart.dart';
 import 'package:online_shop/features/home/bloc/home_bloc.dart';
 import 'package:online_shop/features/home/ui/product_tile.dart';
-import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
