@@ -52,16 +52,21 @@ class _CartState extends State<Cart> {
               return const Center(child: CircularProgressIndicator());
             case CartSuccess:
               final products = (state as CartSuccess).products;
-              return Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: ListView.builder(
-                  itemCount: products.length,
-                  itemBuilder: (context, index) {
-                    return ProductTile(
-                      cartBloc: _cartBloc,
-                      product: products[index],
-                    );
-                  },
+              return RefreshIndicator(
+                onRefresh: () async {
+                  _cartBloc.add(CartInitialEvent());
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: ListView.builder(
+                    itemCount: products.length,
+                    itemBuilder: (context, index) {
+                      return ProductTile(
+                        cartBloc: _cartBloc,
+                        product: products[index],
+                      );
+                    },
+                  ),
                 ),
               );
             case EmptyCartState:

@@ -80,6 +80,6 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     emit(CartLoading());
     final db = Database();
     await db.signOut();
-    emit(CartLogoutState()); // Emit logout state for navigation
+    emit(CartLogoutState());
   }
 }
