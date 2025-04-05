@@ -59,9 +59,9 @@ class _HomeState extends State<Home> {
               return const Center(child: CircularProgressIndicator());
             case HomeSuccess:
               final products = (state as HomeSuccess).products;
-              return LiquidPullToRefresh(
+              return RefreshIndicator(
                 onRefresh: () async {
-                  _homeBloc.add(HomeInitialEvent());
+                  _homeBloc.add(HomeRefreshEvent());
                 },
                 color: Colors.black,
                 child: Padding(

@@ -18,3 +18,5 @@ class HomeProductsUpdated extends HomeEvent {
   final List<Product> products;
   HomeProductsUpdated(this.products);
 }
+
+class HomeRefreshEvent extends HomeEvent {}

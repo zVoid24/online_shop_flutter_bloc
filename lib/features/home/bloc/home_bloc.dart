@@ -19,6 +19,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<HomeNavigateToCartEvent>(_onHomeNavigateToCartEvent);
     on<HomeLogoutEvent>(_onHomeLogoutEvent);
     on<HomeProductsUpdated>(_onProductsUpdated);
+    on<HomeRefreshEvent>(_onHomeRefreshEvent);
   }
 
   Future<void> _onHomeInitialEvent(
@@ -27,7 +28,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   ) async {
     emit(HomeLoading());
 
-    await _productSubscription?.cancel(); // avoid duplicate listeners
+    await _productSubscription?.cancel();
 
     _productSubscription = productDatabase.fetchProductsStream().listen(
       (products) {
@@ -43,7 +44,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     HomeProductsUpdated event,
     Emitter<HomeState> emit,
   ) async {
-    emit(HomeLoading());
+    //emit(HomeLoading());
     if (event.products.isEmpty) {
       emit(HomeFailure(error: 'No products found'));
     } else {
@@ -84,5 +85,22 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   Future<void> close() {
     _productSubscription?.cancel();
     return super.close();
+  }
+
+  FutureOr<void> _onHomeRefreshEvent(
+    HomeRefreshEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    await Future.delayed(const Duration(seconds: 3));
+    await _productSubscription?.cancel();
+
+    _productSubscription = productDatabase.fetchProductsStream().listen(
+      (products) {
+        add(HomeProductsUpdated(products));
+      },
+      onError: (e) {
+        emit(HomeFailure(error: 'Stream error: $e'));
+      },
+    );
   }
 }

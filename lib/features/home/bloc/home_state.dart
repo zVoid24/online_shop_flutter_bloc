@@ -27,3 +27,8 @@ class HomeAddToCartStateFailure extends HomeActionState {
 }
 
 class HomeNavigateToCartState extends HomeActionState {}
+
+class HomeRefreshState extends HomeActionState {
+  final List<Product> products;
+  HomeRefreshState({required this.products});
+}

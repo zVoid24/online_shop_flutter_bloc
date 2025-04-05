@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class Database {
   final _firebaseAuth = FirebaseAuth.instance;
-
   /// Signs in a user with email and password.
   /// Returns the [User] object on success, or throws a formatted exception on failure.
   Future<User?> signInWithEmail({
