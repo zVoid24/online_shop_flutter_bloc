@@ -13,3 +13,8 @@ class HomeAddToCartEvent extends HomeEvent {
 }
 
 class HomeLogoutEvent extends HomeEvent {}
+
+class HomeProductsUpdated extends HomeEvent {
+  final List<Product> products;
+  HomeProductsUpdated(this.products);
+}

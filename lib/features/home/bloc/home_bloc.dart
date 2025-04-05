@@ -10,11 +10,15 @@ part 'home_event.dart';
 part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
+  StreamSubscription<List<Product>>? _productSubscription;
+  final ProductDatabase productDatabase = ProductDatabase();
+
   HomeBloc() : super(HomeInitial()) {
     on<HomeInitialEvent>(_onHomeInitialEvent);
     on<HomeAddToCartEvent>(_onHomeAddToCartEvent);
     on<HomeNavigateToCartEvent>(_onHomeNavigateToCartEvent);
     on<HomeLogoutEvent>(_onHomeLogoutEvent);
+    on<HomeProductsUpdated>(_onProductsUpdated);
   }
 
   Future<void> _onHomeInitialEvent(
@@ -22,20 +26,32 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     Emitter<HomeState> emit,
   ) async {
     emit(HomeLoading());
-    final db = ProductDatabase();
-    try {
-      final products = await db.fetchProducts();
-      if (products.isNotEmpty) {
-        emit(HomeSuccess(products: products));
-      } else {
-        emit(HomeFailure(error: 'No products found'));
-      }
-    } catch (e) {
-      emit(HomeFailure(error: 'Failed to load products: $e'));
+
+    await _productSubscription?.cancel(); // avoid duplicate listeners
+
+    _productSubscription = productDatabase.fetchProductsStream().listen(
+      (products) {
+        add(HomeProductsUpdated(products));
+      },
+      onError: (e) {
+        emit(HomeFailure(error: 'Stream error: $e'));
+      },
+    );
+  }
+
+  Future<void> _onProductsUpdated(
+    HomeProductsUpdated event,
+    Emitter<HomeState> emit,
+  ) async {
+    emit(HomeLoading());
+    if (event.products.isEmpty) {
+      emit(HomeFailure(error: 'No products found'));
+    } else {
+      emit(HomeSuccess(products: event.products));
     }
   }
 
-  FutureOr<void> _onHomeAddToCartEvent(
+  Future<void> _onHomeAddToCartEvent(
     HomeAddToCartEvent event,
     Emitter<HomeState> emit,
   ) async {
@@ -49,18 +65,24 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
   }
 
-  FutureOr<void> _onHomeNavigateToCartEvent(
+  void _onHomeNavigateToCartEvent(
     HomeNavigateToCartEvent event,
     Emitter<HomeState> emit,
   ) {
     emit(HomeNavigateToCartState());
   }
 
-  FutureOr<void> _onHomeLogoutEvent(
+  Future<void> _onHomeLogoutEvent(
     HomeLogoutEvent event,
     Emitter<HomeState> emit,
   ) async {
     final db = Database();
     await db.signOut();
+  }
+
+  @override
+  Future<void> close() {
+    _productSubscription?.cancel();
+    return super.close();
   }
 }
