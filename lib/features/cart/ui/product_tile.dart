@@ -78,7 +78,7 @@ class ProductTile extends StatelessWidget {
                       },
                     ),
                     IconButton(
-                      icon: const Icon(Icons.remove_shopping_cart),
+                      icon: const Icon(Icons.remove_shopping_cart_rounded),
                       onPressed: () {
                         cartBloc.add(
                           RemoveFromCartEvent(productId: product.id),

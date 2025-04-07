@@ -27,7 +27,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     Emitter<HomeState> emit,
   ) async {
     emit(HomeLoading());
-
     await _productSubscription?.cancel();
 
     _productSubscription = productDatabase.fetchProductsStream().listen(

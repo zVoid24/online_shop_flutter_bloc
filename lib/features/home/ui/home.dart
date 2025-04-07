@@ -56,7 +56,9 @@ class _HomeState extends State<Home> {
         builder: (context, state) {
           switch (state.runtimeType) {
             case HomeLoading:
-              return const Center(child: CircularProgressIndicator());
+              return const Center(
+                child: CircularProgressIndicator(color: Color(0xFF328E6E)),
+              );
             case HomeSuccess:
               final products = (state as HomeSuccess).products;
               return RefreshIndicator(

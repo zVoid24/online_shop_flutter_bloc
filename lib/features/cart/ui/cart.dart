@@ -50,7 +50,9 @@ class _CartState extends State<Cart> {
         builder: (context, state) {
           switch (state.runtimeType) {
             case CartLoading:
-              return const Center(child: CircularProgressIndicator());
+              return const Center(
+                child: CircularProgressIndicator(color: Color(0xFF328E6E)),
+              );
             case CartAddToCartSuccessState:
             case CartSuccess:
               final products = (state as CartSuccess).products;
