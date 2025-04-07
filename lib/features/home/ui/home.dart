@@ -65,7 +65,8 @@ class _HomeState extends State<Home> {
                 onRefresh: () async {
                   _homeBloc.add(HomeRefreshEvent());
                 },
-                color: Colors.black,
+                color: Color(0xFF328E6E),
+                backgroundColor: Color(0xFFEAECCC),
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: ListView.builder(
