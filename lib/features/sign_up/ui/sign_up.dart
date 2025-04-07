@@ -32,7 +32,7 @@ class _SignUpState extends State<SignUp> {
             color: Colors.white,
           ),
         ),
-        backgroundColor: Colors.black,
+        backgroundColor: Color(0xFF328E6E),
         foregroundColor: Colors.white,
       ),
       body: BlocConsumer<SignUpBloc, SignUpState>(
@@ -47,7 +47,11 @@ class _SignUpState extends State<SignUp> {
         listener: (context, state) {
           if (state is SignUpFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.error), backgroundColor: Colors.red),
+              SnackBar(
+                content: Text(state.error),
+                duration: Duration(seconds: 1),
+                backgroundColor: Colors.red,
+              ),
             );
           } else if (state is SignUpSuccess) {
             Navigator.pop(context); // Pop the SignUp page after success
@@ -120,7 +124,7 @@ class _SignUpState extends State<SignUp> {
                     height: 40,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Colors.blue,
+                      color: Color(0xFF328E6E),
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: const Center(

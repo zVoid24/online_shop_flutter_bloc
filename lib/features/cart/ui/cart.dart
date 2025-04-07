@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:online_shop/features/cart/bloc/cart_bloc.dart';
 import 'package:online_shop/features/cart/ui/product_tile.dart';
 
@@ -21,109 +22,55 @@ class _CartState extends State<Cart> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Cart"),
-        foregroundColor: Colors.white,
-        backgroundColor: Color(0xFF328E6E),
-      ),
-      backgroundColor: const Color(0xFFEAECCC),
-      drawer: buildDrawer(context),
-      body: BlocConsumer<CartBloc, CartState>(
-        bloc: _cartBloc,
-        listenWhen: (previous, current) => current is CartActionState,
-        buildWhen: (previous, current) => current is! CartActionState,
-        listener: (context, state) {
-          if (state is CartNavigateToHomeState) {
-            Navigator.pop(context);
-          } else if (state is CartProductRemovedState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Product removed from cart!'),
-                backgroundColor: Colors.red,
+    return BlocConsumer<CartBloc, CartState>(
+      bloc: _cartBloc,
+      listenWhen: (previous, current) => current is CartActionState,
+      buildWhen: (previous, current) => current is! CartActionState,
+      listener: (context, state) {
+        if (state is CartProductRemovedState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Product removed from cart!'),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 1),
+            ),
+          );
+        }
+      },
+      builder: (context, state) {
+        switch (state) {
+          case CartLoading _:
+            return const Center(
+              child: SpinKitSpinningLines(color: Color(0xFF328E6E), size: 50.0),
+            );
+          case CartSuccess(:final products):
+            return RefreshIndicator(
+              onRefresh: () async {
+                _cartBloc.add(CartInitialEvent());
+              },
+              color: const Color(0xFF328E6E),
+              backgroundColor: const Color(0xFFEAECCC),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+                child: ListView.builder(
+                  itemCount: products.length,
+                  itemBuilder: (context, index) {
+                    return ProductTile(
+                      cartBloc: _cartBloc,
+                      product: products[index],
+                    );
+                  },
+                ),
               ),
             );
-          } else if (state is CartLogoutState) {
-            Navigator.pop(context); // Navigate back or to login screen
-          }
-        },
-        builder: (context, state) {
-          switch (state.runtimeType) {
-            case CartLoading:
-              return const Center(
-                child: CircularProgressIndicator(color: Color(0xFF328E6E)),
-              );
-            case CartAddToCartSuccessState:
-            case CartSuccess:
-              final products = (state as CartSuccess).products;
-              return RefreshIndicator(
-                onRefresh: () async {
-                  _cartBloc.add(CartInitialEvent());
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: ListView.builder(
-                    itemCount: products.length,
-                    itemBuilder: (context, index) {
-                      return ProductTile(
-                        cartBloc: _cartBloc,
-                        product: products[index],
-                      );
-                    },
-                  ),
-                ),
-              );
-            case EmptyCartState:
-              return const Center(child: Text('Your cart is empty'));
-            case CartFailure:
-              return Center(child: Text((state as CartFailure).error));
-            default:
-              return const Center(
-                child: CircularProgressIndicator(),
-              ); // Initial loading
-          }
-        },
-      ),
-    );
-  }
-
-  Widget buildDrawer(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(color: Color(0xFF328E6E)),
-            child: Text(
-              'Menu',
-              style: TextStyle(color: Colors.white, fontSize: 24),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('Home'),
-            onTap: () {
-              Navigator.pop(context);
-              _cartBloc.add(CartNavigateToHomeEvent());
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.shopping_cart),
-            title: const Text('Cart'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.logout),
-            title: const Text('Logout'),
-            onTap: () {
-              Navigator.pop(context);
-              _cartBloc.add(CartLogoutEvent());
-            },
-          ),
-        ],
-      ),
+          case EmptyCartState _:
+            return const Center(child: Text('Your cart is empty'));
+          case CartFailure(:final error):
+            return Center(child: Text(error));
+          default:
+            return const Center(child: CircularProgressIndicator());
+        }
+      },
     );
   }
 }

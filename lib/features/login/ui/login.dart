@@ -41,8 +41,9 @@ class _LoginState extends State<Login> {
             fontSize: 25,
           ),
         ),
-        backgroundColor: Colors.black,
+        backgroundColor: Color(0xFF328E6E),
       ),
+      //backgroundColor: const Color(0xFFEAECCC),
       body: BlocConsumer<LoginBloc, LoginState>(
         listenWhen: (previous, current) => current is LoginActionState,
         buildWhen:
@@ -52,7 +53,11 @@ class _LoginState extends State<Login> {
         listener: (context, state) {
           if (state is LoginFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.error), backgroundColor: Colors.red),
+              SnackBar(
+                content: Text(state.error),
+                duration: Duration(seconds: 1),
+                backgroundColor: Colors.red,
+              ),
             );
           } else if (state is LoginNavigateToSignUp) {
             Navigator.push(
@@ -102,30 +107,14 @@ class _LoginState extends State<Login> {
                       obscureText: state.isPasswordObscured,
                     ),
                     const SizedBox(height: 20),
-                    GestureDetector(
-                      onTap: () {
-                        loginBloc.add(
-                          LoginButtonPressed(
-                            email: _emailController.text,
-                            password: _passwordController.text,
-                          ),
-                        );
-                      },
-                      child: Container(
-                        height: 40,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(15),
+                    customButton(context, 'Sign In', () {
+                      loginBloc.add(
+                        LoginButtonPressed(
+                          email: _emailController.text,
+                          password: _passwordController.text,
                         ),
-                        child: Center(
-                          child: const Text(
-                            'Log In',
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
-                        ),
-                      ),
-                    ),
+                      );
+                    }),
                     SizedBox(height: 20),
                     customButton(
                       context,
@@ -159,7 +148,7 @@ class _LoginState extends State<Login> {
         height: 40,
         width: double.infinity,
         decoration: BoxDecoration(
-          color: Colors.blue,
+          color: Color(0xFF328E6E),
           borderRadius: BorderRadius.circular(15),
         ),
         child: Center(

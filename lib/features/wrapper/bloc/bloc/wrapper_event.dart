@@ -9,3 +9,5 @@ class AuthStateChanged extends WrapperEvent {
 }
 
 class CheckAuthStatus extends WrapperEvent {}
+
+class WrapperInitialEvent extends WrapperEvent {}

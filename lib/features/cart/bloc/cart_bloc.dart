@@ -13,8 +13,6 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   CartBloc() : super(CartInitial()) {
     on<CartInitialEvent>(_onCartInitialEvent);
     on<RemoveFromCartEvent>(_onRemoveFromCartEvent);
-    on<CartNavigateToHomeEvent>(_onCartNavigateToHomeEvent);
-    on<CartLogoutEvent>(_onCartLogoutEvent);
     on<CartAddToCartEvent>(_onCartAddToCartEvent);
     on<OneQuantityRemoveFromCartEvent>(_onOneQuantityRemoveFromCartEvent);
   }
@@ -46,7 +44,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     RemoveFromCartEvent event,
     Emitter<CartState> emit,
   ) async {
-    emit(CartLoading());
+    //emit(CartLoading());
     final currentUser = await Database().getCurrentUser();
     if (currentUser == null) {
       emit(CartFailure(error: 'User not logged in'));
@@ -68,23 +66,6 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     }
   }
 
-  FutureOr<void> _onCartNavigateToHomeEvent(
-    CartNavigateToHomeEvent event,
-    Emitter<CartState> emit,
-  ) {
-    emit(CartNavigateToHomeState());
-  }
-
-  FutureOr<void> _onCartLogoutEvent(
-    CartLogoutEvent event,
-    Emitter<CartState> emit,
-  ) async {
-    emit(CartLoading());
-    final db = Database();
-    await db.signOut();
-    emit(CartLogoutState());
-  }
-
   FutureOr<void> _onCartAddToCartEvent(
     CartAddToCartEvent event,
     Emitter<CartState> emit,
@@ -97,7 +78,12 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     final db = UserDatabase(uid: currentUser.uid);
     try {
       await db.addToCart(productId: event.productId);
-      add(CartInitialEvent());
+      final products = await db.getCartItems();
+      if (products.isNotEmpty) {
+        emit(CartSuccess(products: products));
+      } else {
+        emit(EmptyCartState());
+      }
     } catch (e) {
       emit(CartFailure(error: 'Failed to add to cart: $e'));
     }
@@ -114,11 +100,17 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       return;
     }
     final db = UserDatabase(uid: currentUser.uid);
+
     try {
       await db.oneItemRemoveFromCart(event.productId);
-      add(CartInitialEvent());
+      final products = await db.getCartItems();
+      if (products.isNotEmpty) {
+        emit(CartSuccess(products: products));
+      } else {
+        emit(EmptyCartState());
+      }
     } catch (e) {
-      emit(CartFailure(error: 'Failed to remove item from cart: $e'));
+      emit(CartFailure(error: 'Failed to add to cart: $e'));
     }
   }
 }

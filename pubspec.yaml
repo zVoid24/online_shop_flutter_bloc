@@ -43,6 +43,7 @@ dependencies:
   google_sign_in: ^6.3.0
   meta: ^1.16.0
   liquid_pull_to_refresh: ^3.0.1
+  flutter_spinkit:
 
 
 dev_dependencies:

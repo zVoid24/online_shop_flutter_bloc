@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:online_shop/models/product.dart'; // Import your Product model
+import 'package:online_shop/models/user.dart';
 import 'product_database.dart'; // Import ProductDatabase
 
 class UserDatabase {
@@ -17,6 +18,24 @@ class UserDatabase {
       await userCollection.doc(uid).set({'name': name, 'email': email});
     } catch (e) {
       throw Exception('Failed to create user data: $e');
+    }
+  }
+
+  Future<UserData?> getUserData() async {
+    try {
+      final DocumentSnapshot userSnapshot = await userCollection.doc(uid).get();
+      if (userSnapshot.exists) {
+        final data = userSnapshot.data() as Map<String, dynamic>;
+        return UserData(
+          uid: uid,
+          name: data['name'] ?? 'Unknown',
+          email: data['email'] ?? 'Unknown',
+        );
+      } else {
+        return null;
+      }
+    } catch (e) {
+      throw Exception('Failed to fetch user data: $e');
     }
   }
 

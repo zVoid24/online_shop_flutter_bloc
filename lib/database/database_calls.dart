@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class Database {
   final _firebaseAuth = FirebaseAuth.instance;
+
   /// Signs in a user with email and password.
   /// Returns the [User] object on success, or throws a formatted exception on failure.
   Future<User?> signInWithEmail({
@@ -62,6 +63,16 @@ class Database {
         return 'Email/password sign-up is not enabled.';
       default:
         return 'An error occurred: ${e.message}';
+    }
+  }
+
+  Future<void> resetPassword(String email) async {
+    try {
+      await _firebaseAuth.sendPasswordResetEmail(email: email.trim());
+    } on FirebaseAuthException catch (e) {
+      throw _mapFirebaseException(e);
+    } catch (e) {
+      throw Exception('Failed to send password reset email: $e');
     }
   }
 

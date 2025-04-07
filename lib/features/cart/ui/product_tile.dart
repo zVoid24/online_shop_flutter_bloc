@@ -20,7 +20,6 @@ class ProductTile extends StatelessWidget {
             margin: const EdgeInsets.all(8.0),
             decoration: BoxDecoration(
               color: const Color(0xFFF9F6F7),
-              //border: Border.all(color: Colors.grey),
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: Column(
@@ -48,35 +47,68 @@ class ProductTile extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Container(
+                      //padding: const EdgeInsets.symmetric(horizontal: 10),
+                      width: 200,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.remove),
+                            onPressed: () async {
+                              cartBloc.add(
+                                OneQuantityRemoveFromCartEvent(
+                                  productId: product.id,
+                                ),
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    '${product.name} quantity decreased!',
+                                  ),
+                                  duration: Duration(seconds: 1),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            },
+                          ),
+                          VerticalDivider(color: Colors.grey, thickness: 1),
+                          Text(
+                            "${product.quantity}",
+                            style: TextStyle(fontSize: 15),
+                          ),
+                          VerticalDivider(color: Colors.grey, thickness: 1),
+                          IconButton(
+                            icon: const Icon(Icons.add),
+                            onPressed: () async {
+                              cartBloc.add(
+                                CartAddToCartEvent(productId: product.id),
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    '${product.name} added to cart!',
+                                  ),
+                                  duration: Duration(seconds: 1),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
                     const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.remove),
-                      onPressed: () async {
-                        cartBloc.add(
-                          OneQuantityRemoveFromCartEvent(productId: product.id),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              '${product.name} quantity decreased!',
-                            ),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.add),
-                      onPressed: () async {
-                        cartBloc.add(CartAddToCartEvent(productId: product.id));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Product added to cart!'),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                      },
-                    ),
                     IconButton(
                       icon: const Icon(Icons.remove_shopping_cart_rounded),
                       onPressed: () {
@@ -87,15 +119,11 @@ class ProductTile extends StatelessWidget {
                     ),
                   ],
                 ),
-                Text(
-                  "Quantity: ${product.quantity}",
-                  style: TextStyle(fontSize: 15),
-                ),
               ],
             ),
           ),
         ),
-        SizedBox(height: 10),
+        SizedBox(height: 5),
       ],
     );
   }

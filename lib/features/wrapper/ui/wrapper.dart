@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:online_shop/features/home/ui/home.dart';
 import 'package:online_shop/features/login/ui/login.dart';
 import 'package:online_shop/features/wrapper/bloc/bloc/wrapper_bloc.dart';
+import 'package:online_shop/home_screen/ui/home_screen.dart';
 
 class Wrapper extends StatefulWidget {
   const Wrapper({super.key});
@@ -13,6 +13,7 @@ class Wrapper extends StatefulWidget {
 
 class _WrapperState extends State<Wrapper> {
   final WrapperBloc wrapperBloc = WrapperBloc();
+
   @override
   void initState() {
     super.initState();
@@ -25,7 +26,7 @@ class _WrapperState extends State<Wrapper> {
       listener: (context, state) {
         if (state is Authenticated) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text('Logged in!'),
               backgroundColor: Colors.green,
             ),
@@ -34,9 +35,9 @@ class _WrapperState extends State<Wrapper> {
       },
       builder: (context, state) {
         if (state is Authenticated) {
-          return Home();
+          return const HomeScreen(); // Use HomeScreen instead of Home
         } else {
-          return Login();
+          return const Login();
         }
       },
     );
