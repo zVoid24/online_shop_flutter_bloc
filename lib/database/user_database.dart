@@ -68,28 +68,23 @@ class UserDatabase {
     }
   }
 
-  // Updated to return List<Product>
   Future<List<Product>> getCartItems() async {
     try {
-      // Step 1: Fetch the cart items
       final QuerySnapshot cartSnapshot =
           await userCollection.doc(uid).collection('cart').get();
 
       if (cartSnapshot.docs.isEmpty) {
-        return []; // Return empty list if cart is empty
+        return [];
       }
 
-      // Step 2: Fetch all products
       final List<Product> allProducts = await _productDatabase.fetchProducts();
 
-      // Step 3: Map cart items to Product objects with quantity
       final List<Product> cartItems =
           cartSnapshot.docs.map((doc) {
             final cartData = doc.data() as Map<String, dynamic>;
             final productId = cartData['productId'] as String;
             final quantity = cartData['quantity'] as int;
 
-            // Find the matching product
             final product = allProducts.firstWhere(
               (p) => p.id == productId,
               orElse:
@@ -99,18 +94,17 @@ class UserDatabase {
                     description: '',
                     price: 0.0,
                     imageUrl: '',
-                    quantity: quantity, // Include quantity even in fallback
+                    quantity: quantity,
                   ),
             );
 
-            // Return a new Product instance with quantity
             return Product(
               id: product.id,
               name: product.name,
               description: product.description,
               price: product.price,
               imageUrl: product.imageUrl,
-              quantity: quantity, // Add the quantity from cart
+              quantity: quantity,
             );
           }).toList();
 

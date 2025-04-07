@@ -42,7 +42,7 @@ class ProductTile extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      "\$${product.price}",
+                      "\$${(product.price * product.quantity).toStringAsFixed(2)}",
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
