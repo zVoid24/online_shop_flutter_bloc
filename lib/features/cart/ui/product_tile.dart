@@ -11,49 +11,88 @@ class ProductTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          padding: const EdgeInsets.all(8.0),
-          margin: const EdgeInsets.all(8.0),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 150,
-                width: double.maxFinite,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8.0),
-                  image: DecorationImage(
-                    image: NetworkImage(product.imageUrl),
-                    fit: BoxFit.cover,
+        Card(
+          color: const Color(0xFFF9F6F7),
+          elevation: 1.5,
+          shadowColor: Colors.black,
+          child: Container(
+            padding: const EdgeInsets.all(8.0),
+            margin: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF9F6F7),
+              //border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 150,
+                  width: double.maxFinite,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8.0),
+                    image: DecorationImage(
+                      image: NetworkImage(product.imageUrl),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
-              ),
-              Text(product.name, style: TextStyle(fontSize: 20)),
-              Text(product.description, style: TextStyle(fontSize: 15)),
-              Row(
-                children: [
-                  Text(
-                    "\$${product.price}",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.remove_shopping_cart),
-                    onPressed: () {
-                      cartBloc.add(RemoveFromCartEvent(productId: product.id));
-                    },
-                  ),
-                ],
-              ),
-              Text(
-                "Quantity: ${product.quantity}",
-                style: TextStyle(fontSize: 15),
-              ),
-            ],
+                Text(product.name, style: TextStyle(fontSize: 20)),
+                Text(product.description, style: TextStyle(fontSize: 15)),
+                Row(
+                  children: [
+                    Text(
+                      "\$${product.price}",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.remove),
+                      onPressed: () async {
+                        cartBloc.add(
+                          OneQuantityRemoveFromCartEvent(productId: product.id),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              '${product.name} quantity decreased!',
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: () async {
+                        cartBloc.add(CartAddToCartEvent(productId: product.id));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Product added to cart!'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.remove_shopping_cart),
+                      onPressed: () {
+                        cartBloc.add(
+                          RemoveFromCartEvent(productId: product.id),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                Text(
+                  "Quantity: ${product.quantity}",
+                  style: TextStyle(fontSize: 15),
+                ),
+              ],
+            ),
           ),
         ),
         SizedBox(height: 10),

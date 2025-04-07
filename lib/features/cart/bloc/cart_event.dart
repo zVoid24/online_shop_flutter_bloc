@@ -10,6 +10,16 @@ class RemoveFromCartEvent extends CartEvent {
   RemoveFromCartEvent({required this.productId});
 }
 
+class CartAddToCartEvent extends CartEvent {
+  final String productId;
+  CartAddToCartEvent({required this.productId});
+}
+
 class CartNavigateToHomeEvent extends CartEvent {}
 
 class CartLogoutEvent extends CartEvent {}
+
+class OneQuantityRemoveFromCartEvent extends CartEvent {
+  final String productId;
+  OneQuantityRemoveFromCartEvent({required this.productId});
+}

@@ -25,8 +25,9 @@ class _CartState extends State<Cart> {
       appBar: AppBar(
         title: const Text("Cart"),
         foregroundColor: Colors.white,
-        backgroundColor: Colors.black,
+        backgroundColor: Color(0xFF328E6E),
       ),
+      backgroundColor: const Color(0xFFEAECCC),
       drawer: buildDrawer(context),
       body: BlocConsumer<CartBloc, CartState>(
         bloc: _cartBloc,
@@ -50,6 +51,7 @@ class _CartState extends State<Cart> {
           switch (state.runtimeType) {
             case CartLoading:
               return const Center(child: CircularProgressIndicator());
+            case CartAddToCartSuccessState:
             case CartSuccess:
               final products = (state as CartSuccess).products;
               return RefreshIndicator(
@@ -89,7 +91,7 @@ class _CartState extends State<Cart> {
         padding: EdgeInsets.zero,
         children: [
           const DrawerHeader(
-            decoration: BoxDecoration(color: Colors.black),
+            decoration: BoxDecoration(color: Color(0xFF328E6E)),
             child: Text(
               'Menu',
               style: TextStyle(color: Colors.white, fontSize: 24),

@@ -26,9 +26,10 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: const Text("Home"),
         foregroundColor: Colors.white,
-        backgroundColor: Colors.black,
+        backgroundColor: Color(0xFF328E6E),
       ),
       drawer: buildDrawer(context),
+      backgroundColor: Color(0xFFEAECCC),
       body: BlocConsumer<HomeBloc, HomeState>(
         bloc: _homeBloc,
         listenWhen: (previous, current) => current is HomeActionState,
@@ -87,41 +88,45 @@ class _HomeState extends State<Home> {
   }
 
   Widget buildDrawer(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(color: Colors.black),
-            child: Text(
-              'Menu',
-              style: TextStyle(color: Colors.white, fontSize: 24),
+    return Theme(
+      data: Theme.of(context).copyWith(canvasColor: const Color(0xFFEAECCC)),
+      child: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(color: Color(0xFF328E6E)),
+              child: Text(
+                'Menu',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
             ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.home),
-            title: const Text('Home'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.shopping_cart),
-            title: const Text('Cart'),
-            onTap: () {
-              _homeBloc.add(HomeNavigateToCartEvent());
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.logout),
-            title: const Text('Logout'),
-            onTap: () {
-              Navigator.pop(context);
-              _homeBloc.add(HomeLogoutEvent());
-            },
-          ),
-        ],
+
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text('Home'),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.shopping_cart),
+              title: const Text('Cart'),
+              onTap: () {
+                _homeBloc.add(HomeNavigateToCartEvent());
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Logout'),
+              onTap: () {
+                Navigator.pop(context);
+                _homeBloc.add(HomeLogoutEvent());
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -26,3 +26,5 @@ class CartNavigateToHomeState extends CartActionState {}
 class CartProductRemovedState extends CartActionState {}
 
 class CartLogoutState extends CartActionState {}
+
+class CartAddToCartSuccessState extends CartActionState {}

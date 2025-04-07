@@ -5,5 +5,15 @@ import 'package:online_shop/features/wrapper/ui/wrapper.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MaterialApp(debugShowCheckedModeBanner: false, home: Wrapper()));
+  runApp(
+    MaterialApp(
+      // theme: ThemeData(
+      //   primaryColor: const Color(0xFF328E6E),
+      //   scaffoldBackgroundColor: const Color(0xFFEAECCC),
+      //   canvasColor: const Color(0xFFEAECCC),
+      // ),
+      debugShowCheckedModeBanner: false,
+      home: Wrapper(),
+    ),
+  );
 }

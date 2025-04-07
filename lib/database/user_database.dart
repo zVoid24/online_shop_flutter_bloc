@@ -46,6 +46,28 @@ class UserDatabase {
     }
   }
 
+  Future<void> oneItemRemoveFromCart(String productId) async {
+    try {
+      final cartItemRef = userCollection
+          .doc(uid)
+          .collection('cart')
+          .doc(productId);
+      final cartItemSnapshot = await cartItemRef.get();
+
+      if (cartItemSnapshot.exists) {
+        final currentQuantity =
+            cartItemSnapshot.data()?['quantity'] as int? ?? 0;
+        if (currentQuantity > 1) {
+          await cartItemRef.update({'quantity': FieldValue.increment(-1)});
+        } else {
+          await removeFromCart(productId);
+        }
+      }
+    } catch (e) {
+      throw Exception('Failed to remove one item from cart: $e');
+    }
+  }
+
   // Updated to return List<Product>
   Future<List<Product>> getCartItems() async {
     try {

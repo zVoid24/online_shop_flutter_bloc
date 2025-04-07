@@ -15,6 +15,8 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     on<RemoveFromCartEvent>(_onRemoveFromCartEvent);
     on<CartNavigateToHomeEvent>(_onCartNavigateToHomeEvent);
     on<CartLogoutEvent>(_onCartLogoutEvent);
+    on<CartAddToCartEvent>(_onCartAddToCartEvent);
+    on<OneQuantityRemoveFromCartEvent>(_onOneQuantityRemoveFromCartEvent);
   }
 
   FutureOr<void> _onCartInitialEvent(
@@ -81,5 +83,42 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     final db = Database();
     await db.signOut();
     emit(CartLogoutState());
+  }
+
+  FutureOr<void> _onCartAddToCartEvent(
+    CartAddToCartEvent event,
+    Emitter<CartState> emit,
+  ) async {
+    final currentUser = await Database().getCurrentUser();
+    if (currentUser == null) {
+      emit(CartFailure(error: 'User not logged in'));
+      return;
+    }
+    final db = UserDatabase(uid: currentUser.uid);
+    try {
+      await db.addToCart(productId: event.productId);
+      add(CartInitialEvent());
+    } catch (e) {
+      emit(CartFailure(error: 'Failed to add to cart: $e'));
+    }
+  }
+
+  FutureOr<void> _onOneQuantityRemoveFromCartEvent(
+    OneQuantityRemoveFromCartEvent event,
+    Emitter<CartState> emit,
+  ) async {
+    //emit(CartLoading());
+    final currentUser = await Database().getCurrentUser();
+    if (currentUser == null) {
+      emit(CartFailure(error: 'User not logged in'));
+      return;
+    }
+    final db = UserDatabase(uid: currentUser.uid);
+    try {
+      await db.oneItemRemoveFromCart(event.productId);
+      add(CartInitialEvent());
+    } catch (e) {
+      emit(CartFailure(error: 'Failed to remove item from cart: $e'));
+    }
   }
 }
