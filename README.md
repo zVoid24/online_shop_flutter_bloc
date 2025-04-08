@@ -28,7 +28,6 @@
 - **Firebase** – Firestore, Auth, Cloud Functions, and Storage
 - **BLoC** – Clean architecture for state management
 - **Provider** – Dependency Injection
-- **Cloud Storage** – Product image hosting
 - **Shared Preferences** – Persistent local storage
 
 ---
