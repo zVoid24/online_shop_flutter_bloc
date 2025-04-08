@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:online_shop/features/home/bloc/home_bloc.dart';
 import 'package:online_shop/models/product.dart';
