@@ -47,7 +47,7 @@ class _ProfileState extends State<Profile> {
                     radius: 100,
                     child: ClipOval(
                       child: Image.network(
-                        'https://avatar.iran.liara.run/public/boy',
+                        'https://robohash.org/${user.email}.png?set=set4',
                         width: 200, // Match diameter (2 * radius)
                         height: 200,
                         fit: BoxFit.contain, // Show full image without cropping

@@ -93,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             CircleAvatar(
                               radius: 40,
                               backgroundImage: NetworkImage(
-                                'https://avatar.iran.liara.run/public/boy',
+                                'https://robohash.org/${snapshot.data!.email}.png?set=set4',
                               ),
                             ),
                             SizedBox(width: 10),
