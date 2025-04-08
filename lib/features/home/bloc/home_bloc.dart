@@ -16,10 +16,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc() : super(HomeInitial()) {
     on<HomeInitialEvent>(_onHomeInitialEvent);
     on<HomeAddToCartEvent>(_onHomeAddToCartEvent);
-    on<HomeNavigateToCartEvent>(_onHomeNavigateToCartEvent);
     on<HomeLogoutEvent>(_onHomeLogoutEvent);
     on<HomeProductsUpdated>(_onProductsUpdated);
     on<HomeRefreshEvent>(_onHomeRefreshEvent);
+    on<HomeProductTapEvent>(_onHomeProductTapEvent);
   }
 
   Future<void> _onHomeInitialEvent(
@@ -66,13 +66,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
   }
 
-  void _onHomeNavigateToCartEvent(
-    HomeNavigateToCartEvent event,
-    Emitter<HomeState> emit,
-  ) {
-    emit(HomeNavigateToCartState());
-  }
-
   Future<void> _onHomeLogoutEvent(
     HomeLogoutEvent event,
     Emitter<HomeState> emit,
@@ -102,5 +95,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         emit(HomeFailure(error: 'Stream error: $e'));
       },
     );
+  }
+
+  FutureOr<void> _onHomeProductTapEvent(
+    HomeProductTapEvent event,
+    Emitter<HomeState> emit,
+  ) {
+    emit(HomeNavigateToProductScreen(product: event.product));
   }
 }

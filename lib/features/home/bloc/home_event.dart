@@ -20,3 +20,8 @@ class HomeProductsUpdated extends HomeEvent {
 }
 
 class HomeRefreshEvent extends HomeEvent {}
+
+class HomeProductTapEvent extends HomeEvent {
+  final Product product;
+  HomeProductTapEvent({required this.product});
+}

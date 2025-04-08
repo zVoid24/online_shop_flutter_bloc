@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:online_shop/features/home/bloc/home_bloc.dart';
 import 'package:online_shop/features/home/ui/product_tile.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:online_shop/features/product_screen/ui/product.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -41,6 +42,13 @@ class _HomeState extends State<Home> {
               content: Text(state.error),
               duration: Duration(seconds: 1),
               backgroundColor: Colors.red,
+            ),
+          );
+        } else if (state is HomeNavigateToProductScreen) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProductScreen(product: state.product),
             ),
           );
         }
