@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -46,11 +47,13 @@ class _ProfileState extends State<Profile> {
                   CircleAvatar(
                     radius: 100,
                     child: ClipOval(
-                      child: Image.network(
-                        'https://robohash.org/${user.email}.png?set=set4',
-                        width: 200, // Match diameter (2 * radius)
-                        height: 200,
-                        fit: BoxFit.contain, // Show full image without cropping
+                      child: CachedNetworkImage(
+                        imageUrl:
+                            'https://robohash.org/${user.email}.png?set=set4',
+                        placeholder:
+                            (context, url) => SpinKitPulse(color: Colors.black),
+                        errorWidget:
+                            (context, url, error) => const Icon(Icons.error),
                       ),
                     ),
                   ),

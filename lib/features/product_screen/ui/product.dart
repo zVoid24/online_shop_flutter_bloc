@@ -43,7 +43,7 @@ class _ProductScreenState extends State<ProductScreen> {
                 padding: const EdgeInsets.all(15.0),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: Container(
+                  child: SizedBox(
                     height: MediaQuery.of(context).size.height * 0.4,
                     width: double.infinity,
                     child: Image.network(

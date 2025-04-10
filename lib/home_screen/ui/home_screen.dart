@@ -8,6 +8,7 @@ import 'package:online_shop/features/home/ui/home.dart';
 import 'package:online_shop/features/profile/ui/profile.dart';
 import 'package:online_shop/home_screen/bloc/home_screen_bloc.dart';
 import 'package:online_shop/models/user.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -92,7 +93,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             CircleAvatar(
                               radius: 40,
-                              backgroundImage: NetworkImage(
+                              //   backgroundImage: NetworkImage(
+                              //     'https://robohash.org/${snapshot.data!.email}.png?set=set4',
+                              //   ),
+                              // ),
+                              backgroundImage: CachedNetworkImageProvider(
                                 'https://robohash.org/${snapshot.data!.email}.png?set=set4',
                               ),
                             ),
