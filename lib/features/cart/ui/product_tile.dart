@@ -24,7 +24,6 @@ class ProductTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             padding: const EdgeInsets.symmetric(horizontal: 20),
-
             child: const Icon(Icons.delete, color: Colors.white),
           ),
           child: Card(
@@ -41,87 +40,133 @@ class ProductTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    height: 150,
-                    width: double.maxFinite,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8.0),
-                      image: DecorationImage(
-                        image: NetworkImage(product.imageUrl),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  Text(product.name, style: TextStyle(fontSize: 20)),
-                  Text(product.description, style: TextStyle(fontSize: 15)),
                   Row(
                     children: [
-                      Text(
-                        "\$${(product.price * product.quantity).toStringAsFixed(2)}",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                      Container(
+                        height: 100,
+                        width: 100,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8.0),
+                          image: DecorationImage(
+                            image: NetworkImage(product.imageUrl),
+                            fit: BoxFit.cover,
+                          ),
                         ),
+                      ),
+                      const SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            product.name,
+                            style: const TextStyle(fontSize: 20),
+                          ),
+                          Text(
+                            product.description,
+                            style: const TextStyle(fontSize: 15),
+                          ),
+                          Text(
+                            "\$${(product.price * product.quantity).toStringAsFixed(2)}",
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                   Row(
+                    //crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Container(
-                        //padding: const EdgeInsets.symmetric(horizontal: 10),
-                        width: 200,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(8.0),
+                      //const Spacer(),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          minWidth: 120, // Minimum width for small quantities
+                          maxWidth: 200, // Maximum width for large quantities
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.remove),
-                              onPressed: () async {
-                                cartBloc.add(
-                                  OneQuantityRemoveFromCartEvent(
-                                    productId: product.id,
-                                  ),
-                                );
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      '${product.name} quantity decreased!',
+                        child: Container(
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: Row(
+                            mainAxisSize:
+                                MainAxisSize.min, // Shrink-wrap content
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              IconButton(
+                                color: Colors.red,
+                                icon:
+                                    product.quantity == 1
+                                        ? Icon(Icons.delete)
+                                        : Icon(Icons.remove),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                ),
+                                constraints:
+                                    const BoxConstraints(), // Remove default constraints
+                                onPressed: () async {
+                                  if(product.quantity==1)
+                                  {
+                                    cartBloc.add(RemoveFromCartEvent(productId: product.id));
+                                  }
+                                  else
+                                  {
+                                    cartBloc.add(
+                                    OneQuantityRemoveFromCartEvent(
+                                      productName: product.name,
+                                      productId: product.id,
                                     ),
-                                    duration: Duration(seconds: 1),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              },
-                            ),
-                            VerticalDivider(color: Colors.grey, thickness: 1),
-                            Text(
-                              "${product.quantity}",
-                              style: TextStyle(fontSize: 15),
-                            ),
-                            VerticalDivider(color: Colors.grey, thickness: 1),
-                            IconButton(
-                              icon: const Icon(Icons.add),
-                              onPressed: () async {
-                                cartBloc.add(
-                                  CartAddToCartEvent(productId: product.id),
-                                );
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      '${product.name} added to cart!',
+                                  );
+                                  }
+                                },
+                              ),
+                              const VerticalDivider(
+                                color: Colors.grey,
+                                thickness: 1,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                ),
+                                child: Text(
+                                  "${product.quantity}",
+                                  style: const TextStyle(fontSize: 15),
+                                ),
+                              ),
+                              const VerticalDivider(
+                                color: Colors.grey,
+                                thickness: 1,
+                              ),
+                              IconButton(
+                                color: Colors.green,
+                                icon: const Icon(Icons.add),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                ),
+                                constraints:
+                                    const BoxConstraints(), // Remove default constraints
+                                onPressed: () async {
+                                  cartBloc.add(
+                                    CartAddToCartEvent(productId: product.id),
+                                  );
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        '${product.name} added to cart!',
+                                      ),
+                                      duration: const Duration(seconds: 1),
+                                      backgroundColor: Colors.green,
                                     ),
-                                    duration: Duration(seconds: 1),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -131,7 +176,7 @@ class ProductTile extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 5),
       ],
     );
   }

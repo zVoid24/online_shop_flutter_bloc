@@ -35,6 +35,14 @@ class _CartState extends State<Cart> {
               duration: Duration(seconds: 1),
             ),
           );
+        } else if (state is OneProductDecreasedState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${state.name} quantity decreased!'),
+              duration: const Duration(seconds: 1),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       },
       builder: (context, state) {

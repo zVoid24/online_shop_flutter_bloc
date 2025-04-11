@@ -93,7 +93,6 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     OneQuantityRemoveFromCartEvent event,
     Emitter<CartState> emit,
   ) async {
-    //emit(CartLoading());
     final currentUser = await Database().getCurrentUser();
     if (currentUser == null) {
       emit(CartFailure(error: 'User not logged in'));
@@ -109,6 +108,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       } else {
         emit(EmptyCartState());
       }
+      emit(OneProductDecreasedState(name:  event.productName));
     } catch (e) {
       emit(CartFailure(error: 'Failed to add to cart: $e'));
     }

@@ -11,3 +11,8 @@ class ChangePasswordEvent extends ProfileEvent {
   final String email;
   ChangePasswordEvent({required this.email});
 }
+
+class ProfileUpdateEvent extends ProfileEvent {
+  final UserData updatedUser;
+  ProfileUpdateEvent({required this.updatedUser});
+}

@@ -45,6 +45,7 @@ dependencies:
   liquid_pull_to_refresh: ^3.0.1
   flutter_spinkit:
   cached_network_image: ^3.4.1
+  shared_preferences: ^2.5.3
 
 
 dev_dependencies:

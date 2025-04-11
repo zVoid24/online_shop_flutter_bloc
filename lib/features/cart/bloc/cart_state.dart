@@ -24,3 +24,8 @@ class EmptyCartState extends CartState {}
 class CartProductRemovedState extends CartActionState {}
 
 class CartAddToCartSuccessState extends CartActionState {}
+
+class OneProductDecreasedState extends CartActionState{
+  final String name;
+  OneProductDecreasedState({required this.name});
+}

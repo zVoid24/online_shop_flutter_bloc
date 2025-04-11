@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:online_shop/features/profile/bloc/profile_bloc.dart';
+import 'package:online_shop/features/wrapper/ui/wrapper.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -13,18 +14,19 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  final ProfileBloc _profileBloc = ProfileBloc();
 
+  final ProfileBloc profileBloc = ProfileBloc();
   @override
   void initState() {
     super.initState();
-    _profileBloc.add(ProfileInitialEvent());
+    //context.read<ProfileBloc>().add(ProfileInitialEvent());
+    profileBloc.add(ProfileInitialEvent());
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ProfileBloc, ProfileState>(
-      bloc: _profileBloc,
+      bloc: profileBloc,
       listenWhen: (previous, current) => current is ProfileActionState,
       buildWhen: (previous, current) => current is! ProfileActionState,
       listener: (context, state) {
@@ -60,9 +62,9 @@ class _ProfileState extends State<Profile> {
                   const Divider(thickness: 1, color: Colors.grey),
                   Row(
                     children: [
-                      Text(
+                      const Text(
                         'Name:',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -74,9 +76,9 @@ class _ProfileState extends State<Profile> {
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                      Text(
+                      const Text(
                         'Email:',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -99,18 +101,37 @@ class _ProfileState extends State<Profile> {
                       ),
                     ),
                     onPressed: () {
-                      _profileBloc.add(ChangePasswordButtonPressedEvent());
+                    
+                          
+                          profileBloc.add(ChangePasswordButtonPressedEvent());
                     },
-                    child: const Text('Change Passwordd'),
+                    child: const Text('Change Password'),
                   ),
                 ],
               ),
             );
           case ProfileFailure:
             return Center(
-              child: Text(
-                (state as ProfileFailure).error,
-                style: const TextStyle(color: Colors.red, fontSize: 20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    (state as ProfileFailure).error,
+                    style: const TextStyle(color: Colors.red, fontSize: 20),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF328E6E),
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed: () {
+                      context.read<ProfileBloc>().add(ProfileInitialEvent());
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
               ),
             );
           default:
@@ -132,7 +153,7 @@ class _ProfileState extends State<Profile> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(dialogContext).pop(); // Close dialog
+                Navigator.of(dialogContext).pop();
               },
               child: const Text('Cancel'),
             ),
@@ -141,13 +162,20 @@ class _ProfileState extends State<Profile> {
                 backgroundColor: const Color(0xFF328E6E),
                 foregroundColor: Colors.white,
               ),
-              onPressed: () async {
+              onPressed: () {
                 Navigator.of(dialogContext).pop();
-                _profileBloc.add(
-                  ChangePasswordEvent(
-                    email: FirebaseAuth.instance.currentUser!.email!,
-                  ),
-                );
+                final currentUser = FirebaseAuth.instance.currentUser;
+                if (currentUser != null && currentUser.email != null) {
+                  context.read<ProfileBloc>().add(
+                        ChangePasswordEvent(email: currentUser.email!),
+                      );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('No user is signed in.'),
+                    ),
+                  );
+                }
               },
               child: const Text('Agree'),
             ),

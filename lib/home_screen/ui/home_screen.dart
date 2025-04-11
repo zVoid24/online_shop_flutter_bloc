@@ -5,10 +5,12 @@ import 'package:online_shop/database/database_calls.dart';
 import 'package:online_shop/database/user_database.dart';
 import 'package:online_shop/features/cart/ui/cart.dart';
 import 'package:online_shop/features/home/ui/home.dart';
+import 'package:online_shop/features/profile/bloc/profile_bloc.dart';
 import 'package:online_shop/features/profile/ui/profile.dart';
 import 'package:online_shop/home_screen/bloc/home_screen_bloc.dart';
 import 'package:online_shop/models/user.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:online_shop/features/search/ui/search.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,14 +22,23 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _pages = [Home(), Cart(), Profile()];
-  static const List<String> _titles = ['Home', 'Cart', 'Profile'];
+  // Provide ProfileBloc for the Profile widget
+  late final List<Widget> _pages = [
+    const Home(),
+    const Search(),
+    const Cart(),
+    BlocProvider(
+      create: (context) => ProfileBloc(),
+      child: const Profile(),
+    ),
+  ];
+
+  static const List<String> _titles = ['Home', 'Search', 'Cart', 'Profile'];
 
   final HomeScreenBloc _homeScreenBloc = HomeScreenBloc();
   final Database db = Database();
-  late final String uid;
-  // Initialize userDatabase at declaration, removing 'late'
-  final Future<UserData?> userDatabase;
+
+  late final Future<UserData?> userDatabase;
 
   _HomeScreenState() : userDatabase = _initializeUserDatabase();
 
@@ -40,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    _homeScreenBloc.add(HomeScreenInitialEvent());
   }
 
   void _onItemTapped(int index) {
@@ -55,7 +67,11 @@ class _HomeScreenState extends State<HomeScreen> {
       bloc: _homeScreenBloc,
       listenWhen: (previous, current) => current is HomeScreenActionState,
       buildWhen: (previous, current) => current is HomeScreenLoadedState,
-      listener: (context, state) {},
+      listener: (context, state) {
+        // if (state is HomeScreenLogoutState) {
+        //   Navigator.pushReplacementNamed(context, '/wrapper');
+        // }
+      },
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
@@ -88,38 +104,29 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: TextStyle(color: Colors.white, fontSize: 24),
                         );
                       } else {
-                        return Row(
+                        return Column(
                           mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CircleAvatar(
-                              radius: 40,
-                              //   backgroundImage: NetworkImage(
-                              //     'https://robohash.org/${snapshot.data!.email}.png?set=set4',
-                              //   ),
-                              // ),
+                              radius: 30,
                               backgroundImage: CachedNetworkImageProvider(
                                 'https://robohash.org/${snapshot.data!.email}.png?set=set4',
                               ),
                             ),
-                            SizedBox(width: 10),
-                            Column(
-                              children: [
-                                const SizedBox(height: 30),
-                                Text(
-                                  snapshot.data!.name,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24,
-                                  ),
-                                ),
-                                Text(
-                                  snapshot.data!.email,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              ],
+                            Text(
+                              snapshot.data!.name,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                              ),
+                            ),
+                            Text(
+                              snapshot.data!.email,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                              ),
                             ),
                           ],
                         );
@@ -156,18 +163,15 @@ class _HomeScreenState extends State<HomeScreen> {
             items: const [
               BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
               BottomNavigationBarItem(
-                icon: Icon(Icons.shopping_cart),
-                label: 'Cart',
-              ),
+                  icon: Icon(Icons.search), label: 'Search'),
               BottomNavigationBarItem(
-                icon: Icon(Icons.person),
-                label: 'Profile',
-              ),
+                  icon: Icon(Icons.shopping_cart), label: 'Cart'),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.person), label: 'Profile'),
             ],
             currentIndex: _selectedIndex,
             selectedItemColor: const Color(0xFF328E6E),
             unselectedItemColor: Colors.grey,
-            backgroundColor: const Color(0xFFEAECCC),
             onTap: _onItemTapped,
           ),
         );
