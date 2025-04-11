@@ -23,6 +23,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<HomeRefreshEvent>(_onHomeRefreshEvent);
     on<HomeProductTapEvent>(_onHomeProductTapEvent);
     on<HomeLoadMoreEvent>(_onHomeLoadMoreEvent);
+    on<HomeCategoryTapEvent>(_onHomeCategoryTapEvent);
   }
 
   Future<void> _onHomeInitialEvent(
@@ -145,5 +146,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   @override
   Future<void> close() {
     return super.close();
+  }
+
+  FutureOr<void> _onHomeCategoryTapEvent(
+    HomeCategoryTapEvent event,
+    Emitter<HomeState> emit,
+  ) {
+    emit(HomeCategoryTapState(categoryName: event.categoryName));
   }
 }

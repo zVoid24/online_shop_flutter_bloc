@@ -22,3 +22,8 @@ class HomeProductTapEvent extends HomeEvent {
 }
 
 class HomeLoadMoreEvent extends HomeEvent {}
+
+class HomeCategoryTapEvent extends HomeEvent {
+  final String categoryName;
+  HomeCategoryTapEvent({required this.categoryName});
+}

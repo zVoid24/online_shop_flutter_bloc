@@ -36,3 +36,8 @@ class HomeNavigateToProductScreen extends HomeActionState {
   final Product product;
   HomeNavigateToProductScreen({required this.product});
 }
+
+class HomeCategoryTapState extends HomeActionState {
+  final String categoryName;
+  HomeCategoryTapState({required this.categoryName});
+}

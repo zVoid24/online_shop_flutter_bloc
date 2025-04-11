@@ -18,19 +18,19 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    _homeBloc.add(HomeInitialEvent());
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _homeBloc.add(HomeInitialEvent());
+    });
+
     _scrollController.addListener(() {
       final currentPosition = _scrollController.position.pixels;
       final maxExtent = _scrollController.position.maxScrollExtent;
-      print('Scroll position: $currentPosition, maxExtent: $maxExtent');
       if (currentPosition >= maxExtent - 50 &&
           _homeBloc.state is! HomeLoadingMore) {
-        print('Triggering load more');
-        debugPrint("Last item");
         _homeBloc.add(HomeLoadMoreEvent());
       }
     });
-    super.initState();
   }
 
   @override
@@ -40,134 +40,322 @@ class _HomeState extends State<Home> {
     super.dispose();
   }
 
+  // Category data (image paths and titles)
+  final List<Map<String, String>> categories = [
+    {'title': 'Fruits and\nVegetables', 'image': 'assets/images/3652015.jpg'},
+    {'title': 'Dairy & Eggs', 'image': 'assets/images/dairyandeggs.jpg'},
+    {'title': 'Meat & Seafood', 'image': 'assets/images/meatandseafood.jpeg'},
+    {'title': 'Snacks & Sweets', 'image': 'assets/images/snacksandsweets.jpg'},
+    {'title': 'Beverages', 'image': 'assets/images/beverages.jpg'},
+    {'title': 'Frozen Foods', 'image': 'assets/images/frozen_foods.png'},
+  ];
+
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<HomeBloc, HomeState>(
-      bloc: _homeBloc,
-      listenWhen: (previous, current) => current is HomeActionState,
-      buildWhen: (previous, current) => current is! HomeActionState,
-      listener: (context, state) {
-        if (state is HomeAddToCartSuccessState) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Product added to cart!'),
-              duration: Duration(seconds: 1),
-              backgroundColor: Colors.green,
-            ),
-          );
-        } else if (state is HomeAddToCartStateFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.error),
-              duration: Duration(seconds: 1),
-              backgroundColor: Colors.red,
-            ),
-          );
-        } else if (state is HomeNavigateToProductScreen) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProductScreen(product: state.product),
-            ),
-          );
-        }
-      },
-      builder: (context, state) {
-        print('Building state: ${state.runtimeType}');
-        switch (state.runtimeType) {
-          case HomeLoading:
-            return const Center(
-              child: SpinKitSpinningLines(color: Color(0xFF328E6E), size: 50.0),
-            );
-          case HomeSuccess:
-            final successState = state as HomeSuccess;
-            return RefreshIndicator(
-              onRefresh: () async {
-                _homeBloc.add(HomeRefreshEvent());
-              },
-              color: const Color(0xFF328E6E),
-              backgroundColor: const Color(0xFFEAECCC),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(15, 8, 15, 8),
-                child: GridView.builder(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  controller: _scrollController,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 0.8,
-                  ),
-                  itemCount:
-                      successState.products.length +
-                      (successState.hasMore ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index == successState.products.length &&
-                        successState.hasMore) {
-                      return const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: SpinKitSpinningLines(
-                            color: Color(0xFF328E6E),
-                            size: 30.0,
-                          ),
-                        ),
-                      );
-                    }
-                    return ProductTile(
-                      homeBloc: _homeBloc,
-                      product: successState.products[index],
-                    );
-                  },
-                ),
+    return Scaffold(
+      body: BlocConsumer<HomeBloc, HomeState>(
+        bloc: _homeBloc,
+        listenWhen: (previous, current) => current is HomeActionState,
+        buildWhen: (previous, current) => current is! HomeActionState,
+        listener: (context, state) {
+          if (state is HomeAddToCartSuccessState) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Product added to cart!'),
+                duration: Duration(seconds: 1),
+                backgroundColor: Colors.green,
               ),
             );
-          case HomeLoadingMore:
-            final loadingMoreState = state as HomeLoadingMore;
-            return RefreshIndicator(
-              onRefresh: () async {
-                _homeBloc.add(HomeRefreshEvent());
-              },
-              color: const Color(0xFF328E6E),
-              backgroundColor: const Color(0xFFEAECCC),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
-                child: GridView.builder(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  controller: _scrollController,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 0.7,
-                  ),
-                  itemCount: loadingMoreState.products.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == loadingMoreState.products.length) {
-                      return const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: SpinKitSpinningLines(
-                            color: Color(0xFF328E6E),
-                            size: 30.0,
-                          ),
-                        ),
-                      );
-                    }
-                    return ProductTile(
-                      homeBloc: _homeBloc,
-                      product: loadingMoreState.products[index],
-                    );
-                  },
-                ),
+          } else if (state is HomeAddToCartStateFailure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.error),
+                duration: Duration(seconds: 1),
+                backgroundColor: Colors.red,
               ),
             );
-          case HomeFailure:
-            return Center(child: Text((state as HomeFailure).error));
-          default:
-            return const Center(child: Text('Unknown state'));
-        }
-      },
+          } else if (state is HomeNavigateToProductScreen) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProductScreen(product: state.product),
+              ),
+            );
+          } else if (state is HomeCategoryTapState) {
+            // Handle HomeCategoryTapState if needed
+          }
+        },
+
+        builder: (context, state) {
+          print('Building state: ${state.runtimeType}');
+          switch (state.runtimeType) {
+            case HomeLoading:
+              return const Center(
+                child: SpinKitSpinningLines(
+                  color: Color(0xFF328E6E),
+                  size: 50.0,
+                ),
+              );
+            case HomeSuccess:
+              final successState = state as HomeSuccess;
+              return RefreshIndicator(
+                onRefresh: () async {
+                  _homeBloc.add(HomeRefreshEvent());
+                },
+                color: const Color(0xFF328E6E),
+                backgroundColor: const Color(0xFFEAECCC),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 8, 15, 8),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 120, // Consistent height for category section
+                        width:
+                            MediaQuery.of(
+                              context,
+                            ).size.width, // Constrain width
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: categories.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                              ),
+                              child: GestureDetector(
+                                onTap: () {
+                                  _homeBloc.add(
+                                    HomeCategoryTapEvent(
+                                      categoryName: categories[index]['name']!,
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  width: 90, // Slightly larger square box
+                                  height: 90,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.3),
+                                        spreadRadius: 2,
+                                        blurRadius: 5,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(15),
+                                        child: Image.asset(
+                                          categories[index]['image']!,
+                                          fit: BoxFit.cover,
+                                          width: 90,
+                                          height: 90,
+                                        ),
+                                      ),
+                                      Positioned(
+                                        bottom: 5,
+                                        left: 5,
+                                        right: 5,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 2,
+                                            horizontal: 4,
+                                          ),
+                                          color: Colors.black.withOpacity(0.5),
+                                          child: Text(
+                                            categories[index]['title']!,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                              height: 1.2,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const Divider(thickness: 1),
+                      Expanded(
+                        child: GridView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          controller: _scrollController,
+                          gridDelegate:
+                              const SliverGridDelegateWithMaxCrossAxisExtent(
+                                maxCrossAxisExtent: 200,
+                                mainAxisExtent: 220,
+                                crossAxisSpacing: 10,
+                                mainAxisSpacing: 10,
+                              ),
+                          itemCount:
+                              successState.products.length +
+                              (successState.hasMore ? 1 : 0),
+                          itemBuilder: (context, index) {
+                            if (index == successState.products.length &&
+                                successState.hasMore) {
+                              return const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: SpinKitSpinningLines(
+                                    color: Color(0xFF328E6E),
+                                    size: 30.0,
+                                  ),
+                                ),
+                              );
+                            }
+                            return ProductTile(
+                              homeBloc: _homeBloc,
+                              product: successState.products[index],
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            case HomeLoadingMore:
+              final loadingMoreState = state as HomeLoadingMore;
+              return RefreshIndicator(
+                onRefresh: () async {
+                  _homeBloc.add(HomeRefreshEvent());
+                },
+                color: const Color(0xFF328E6E),
+                backgroundColor: const Color(0xFFEAECCC),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(15, 8, 15, 8),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 120, // Consistent height
+                        width:
+                            MediaQuery.of(
+                              context,
+                            ).size.width, // Constrain width
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: categories.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                              ),
+                              child: GestureDetector(
+                                onTap: () {
+                                  print(
+                                    'Tapped: ${categories[index]['title']}',
+                                  );
+                                },
+                                child: Container(
+                                  width: 90, // Consistent square box
+                                  height: 90,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.3),
+                                        spreadRadius: 2,
+                                        blurRadius: 5,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(15),
+                                        child: Image.asset(
+                                          categories[index]['image']!,
+                                          fit: BoxFit.cover,
+                                          width: 90,
+                                          height: 90,
+                                        ),
+                                      ),
+                                      Positioned(
+                                        bottom: 5,
+                                        left: 5,
+                                        right: 5,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 2,
+                                            horizontal: 4,
+                                          ),
+                                          color: Colors.black.withOpacity(0.5),
+                                          child: Text(
+                                            categories[index]['title']!,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                              height: 1.2,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const Divider(thickness: 1),
+                      Expanded(
+                        child: GridView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          controller: _scrollController,
+                          gridDelegate:
+                              const SliverGridDelegateWithMaxCrossAxisExtent(
+                                maxCrossAxisExtent: 200,
+                                mainAxisExtent: 220,
+                                crossAxisSpacing: 10,
+                                mainAxisSpacing: 10,
+                              ),
+                          itemCount: loadingMoreState.products.length + 1,
+                          itemBuilder: (context, index) {
+                            if (index == loadingMoreState.products.length) {
+                              return const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: SpinKitSpinningLines(
+                                    color: Color(0xFF328E6E),
+                                    size: 30.0,
+                                  ),
+                                ),
+                              );
+                            }
+                            return ProductTile(
+                              homeBloc: _homeBloc,
+                              product: loadingMoreState.products[index],
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            case HomeFailure:
+              return Center(child: Text((state as HomeFailure).error));
+            default:
+              return const Center(child: Text('Unknown state'));
+          }
+        },
+      ),
     );
   }
 }
