@@ -14,11 +14,30 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final HomeBloc _homeBloc = HomeBloc();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     _homeBloc.add(HomeInitialEvent());
+    _scrollController.addListener(() {
+      final currentPosition = _scrollController.position.pixels;
+      final maxExtent = _scrollController.position.maxScrollExtent;
+      print('Scroll position: $currentPosition, maxExtent: $maxExtent');
+      if (currentPosition >= maxExtent - 50 &&
+          _homeBloc.state is! HomeLoadingMore) {
+        print('Triggering load more');
+        debugPrint("Last item");
+        _homeBloc.add(HomeLoadMoreEvent());
+      }
+    });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _homeBloc.close();
+    super.dispose();
   }
 
   @override
@@ -54,12 +73,57 @@ class _HomeState extends State<Home> {
         }
       },
       builder: (context, state) {
+        print('Building state: ${state.runtimeType}');
         switch (state.runtimeType) {
           case HomeLoading:
             return const Center(
               child: SpinKitSpinningLines(color: Color(0xFF328E6E), size: 50.0),
             );
           case HomeSuccess:
+            final successState = state as HomeSuccess;
+            return RefreshIndicator(
+              onRefresh: () async {
+                _homeBloc.add(HomeRefreshEvent());
+              },
+              color: const Color(0xFF328E6E),
+              backgroundColor: const Color(0xFFEAECCC),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(15, 8, 15, 8),
+                child: GridView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  controller: _scrollController,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    childAspectRatio: 0.8,
+                  ),
+                  itemCount:
+                      successState.products.length +
+                      (successState.hasMore ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == successState.products.length &&
+                        successState.hasMore) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: SpinKitSpinningLines(
+                            color: Color(0xFF328E6E),
+                            size: 30.0,
+                          ),
+                        ),
+                      );
+                    }
+                    return ProductTile(
+                      homeBloc: _homeBloc,
+                      product: successState.products[index],
+                    );
+                  },
+                ),
+              ),
+            );
+          case HomeLoadingMore:
+            final loadingMoreState = state as HomeLoadingMore;
             return RefreshIndicator(
               onRefresh: () async {
                 _homeBloc.add(HomeRefreshEvent());
@@ -68,12 +132,31 @@ class _HomeState extends State<Home> {
               backgroundColor: const Color(0xFFEAECCC),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
-                child: ListView.builder(
-                  itemCount: (state as HomeSuccess).products.length,
+                child: GridView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  controller: _scrollController,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    childAspectRatio: 0.7,
+                  ),
+                  itemCount: loadingMoreState.products.length + 1,
                   itemBuilder: (context, index) {
+                    if (index == loadingMoreState.products.length) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: SpinKitSpinningLines(
+                            color: Color(0xFF328E6E),
+                            size: 30.0,
+                          ),
+                        ),
+                      );
+                    }
                     return ProductTile(
                       homeBloc: _homeBloc,
-                      product: (state).products[index],
+                      product: loadingMoreState.products[index],
                     );
                   },
                 ),

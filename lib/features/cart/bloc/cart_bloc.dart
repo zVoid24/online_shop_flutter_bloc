@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:online_shop/database/database_calls.dart';
@@ -17,7 +16,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     on<OneQuantityRemoveFromCartEvent>(_onOneQuantityRemoveFromCartEvent);
   }
 
-  FutureOr<void> _onCartInitialEvent(
+  Future<void> _onCartInitialEvent(
     CartInitialEvent event,
     Emitter<CartState> emit,
   ) async {
@@ -40,11 +39,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     }
   }
 
-  FutureOr<void> _onRemoveFromCartEvent(
+  Future<void> _onRemoveFromCartEvent(
     RemoveFromCartEvent event,
     Emitter<CartState> emit,
   ) async {
-    //emit(CartLoading());
     final currentUser = await Database().getCurrentUser();
     if (currentUser == null) {
       emit(CartFailure(error: 'User not logged in'));
@@ -54,7 +52,6 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     try {
       await db.removeFromCart(event.productId);
       emit(CartProductRemovedState()); // Action state for listener
-      // Fetch updated cart items
       final updatedProducts = await db.getCartItems();
       if (updatedProducts.isNotEmpty) {
         emit(CartSuccess(products: updatedProducts));
@@ -66,7 +63,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     }
   }
 
-  FutureOr<void> _onCartAddToCartEvent(
+  Future<void> _onCartAddToCartEvent(
     CartAddToCartEvent event,
     Emitter<CartState> emit,
   ) async {
@@ -89,7 +86,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     }
   }
 
-  FutureOr<void> _onOneQuantityRemoveFromCartEvent(
+  Future<void> _onOneQuantityRemoveFromCartEvent(
     OneQuantityRemoveFromCartEvent event,
     Emitter<CartState> emit,
   ) async {
@@ -99,7 +96,6 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       return;
     }
     final db = UserDatabase(uid: currentUser.uid);
-
     try {
       await db.oneItemRemoveFromCart(event.productId);
       final products = await db.getCartItems();
@@ -108,9 +104,9 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       } else {
         emit(EmptyCartState());
       }
-      emit(OneProductDecreasedState(name:  event.productName));
+      emit(OneProductDecreasedState(name: event.productName));
     } catch (e) {
-      emit(CartFailure(error: 'Failed to add to cart: $e'));
+      emit(CartFailure(error: 'Failed to remove one item from cart: $e'));
     }
   }
 }

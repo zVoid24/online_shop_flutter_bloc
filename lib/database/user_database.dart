@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:online_shop/models/product.dart'; // Import your Product model
+import 'package:online_shop/models/product.dart';
 import 'package:online_shop/models/user.dart';
-import 'product_database.dart'; // Import ProductDatabase
+import 'product_database.dart';
 
 class UserDatabase {
   final String uid;
@@ -96,39 +96,34 @@ class UserDatabase {
         return [];
       }
 
-      final List<Product> allProducts = await _productDatabase.fetchProducts();
+      // Fetch each product's details using fetchProductInfo
+      final cartItems = <Product>[];
+      for (var doc in cartSnapshot.docs) {
+        final cartData = doc.data() as Map<String, dynamic>;
+        final productId = cartData['productId'] as String;
+        final quantity = cartData['quantity'] as int;
 
-      final List<Product> cartItems =
-          cartSnapshot.docs.map((doc) {
-            final cartData = doc.data() as Map<String, dynamic>;
-            final productId = cartData['productId'] as String;
-            final quantity = cartData['quantity'] as int;
+        final productInfo = await _productDatabase.fetchProductInfo(productId);
+        final product =
+            productInfo.first; // fetchProductInfo returns a List with one item
+        cartItems.add(
+          Product(
+            id: product.id,
+            name: product.name,
+            description: product.description,
+            price: product.price,
+            imageUrl: product.imageUrl,
+            quantity: quantity, // Add quantity from cart
+          ),
+        );
+      }
 
-            final product = allProducts.firstWhere(
-              (p) => p.id == productId,
-              orElse:
-                  () => Product(
-                    id: productId,
-                    name: 'Unknown Product',
-                    description: '',
-                    price: 0.0,
-                    imageUrl: '',
-                    quantity: quantity,
-                  ),
-            );
-
-            return Product(
-              id: product.id,
-              name: product.name,
-              description: product.description,
-              price: product.price,
-              imageUrl: product.imageUrl,
-              quantity: quantity,
-            );
-          }).toList();
-
+      print(
+        'Fetched ${cartItems.length} cart items: ${cartItems.map((p) => p.name).toList()}',
+      );
       return cartItems;
     } catch (e) {
+      print('Error fetching cart items: $e');
       throw Exception('Failed to fetch cart items: $e');
     }
   }

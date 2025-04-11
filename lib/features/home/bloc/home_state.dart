@@ -9,9 +9,15 @@ class HomeInitial extends HomeState {}
 
 class HomeLoading extends HomeState {}
 
+class HomeLoadingMore extends HomeState {
+  final List<Product> products;
+  HomeLoadingMore({required this.products});
+}
+
 class HomeSuccess extends HomeState {
   final List<Product> products;
-  HomeSuccess({required this.products});
+  final bool hasMore;
+  HomeSuccess({required this.products, required this.hasMore});
 }
 
 class HomeFailure extends HomeState {
@@ -24,11 +30,6 @@ class HomeAddToCartSuccessState extends HomeActionState {}
 class HomeAddToCartStateFailure extends HomeActionState {
   final String error;
   HomeAddToCartStateFailure({required this.error});
-}
-
-class HomeRefreshState extends HomeActionState {
-  final List<Product> products;
-  HomeRefreshState({required this.products});
 }
 
 class HomeNavigateToProductScreen extends HomeActionState {

@@ -14,14 +14,11 @@ class HomeAddToCartEvent extends HomeEvent {
 
 class HomeLogoutEvent extends HomeEvent {}
 
-class HomeProductsUpdated extends HomeEvent {
-  final List<Product> products;
-  HomeProductsUpdated(this.products);
-}
-
 class HomeRefreshEvent extends HomeEvent {}
 
 class HomeProductTapEvent extends HomeEvent {
   final Product product;
   HomeProductTapEvent({required this.product});
 }
+
+class HomeLoadMoreEvent extends HomeEvent {}

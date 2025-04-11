@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:online_shop/features/profile/bloc/profile_bloc.dart';
-import 'package:online_shop/features/wrapper/ui/wrapper.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -14,7 +13,6 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-
   final ProfileBloc profileBloc = ProfileBloc();
   @override
   void initState() {
@@ -101,9 +99,7 @@ class _ProfileState extends State<Profile> {
                       ),
                     ),
                     onPressed: () {
-                    
-                          
-                          profileBloc.add(ChangePasswordButtonPressedEvent());
+                      profileBloc.add(ChangePasswordButtonPressedEvent());
                     },
                     child: const Text('Change Password'),
                   ),
@@ -167,13 +163,11 @@ class _ProfileState extends State<Profile> {
                 final currentUser = FirebaseAuth.instance.currentUser;
                 if (currentUser != null && currentUser.email != null) {
                   context.read<ProfileBloc>().add(
-                        ChangePasswordEvent(email: currentUser.email!),
-                      );
+                    ChangePasswordEvent(email: currentUser.email!),
+                  );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('No user is signed in.'),
-                    ),
+                    const SnackBar(content: Text('No user is signed in.')),
                   );
                 }
               },

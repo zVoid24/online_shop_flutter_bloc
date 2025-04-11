@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:meta/meta.dart';
 import 'package:online_shop/database/database_calls.dart';
 import 'package:online_shop/database/user_database.dart';
 import 'package:online_shop/features/profile/cached_data/shared_prefs.dart';
@@ -70,8 +69,9 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       await db.signOut();
       await SharedPrefs.clearUserData();
       debugPrint('Cache cleared');
-      emit(ProfileSuccess(
-          user: UserData(uid: '', name: '', email: event.email)));
+      emit(
+        ProfileSuccess(user: UserData(uid: '', name: '', email: event.email)),
+      );
     } catch (e) {
       debugPrint('Error in _onChangePasswordEvent: $e');
       emit(ProfileFailure(error: 'Failed to reset password: $e'));

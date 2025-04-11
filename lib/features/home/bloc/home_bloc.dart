@@ -10,16 +10,19 @@ part 'home_event.dart';
 part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
-  StreamSubscription<List<Product>>? _productSubscription;
   final ProductDatabase productDatabase = ProductDatabase();
+  final List<Product> _products = [];
+  String? _lastDocId;
+  bool _hasMore = true;
+  int _totalProducts = 0;
 
   HomeBloc() : super(HomeInitial()) {
     on<HomeInitialEvent>(_onHomeInitialEvent);
     on<HomeAddToCartEvent>(_onHomeAddToCartEvent);
     on<HomeLogoutEvent>(_onHomeLogoutEvent);
-    on<HomeProductsUpdated>(_onProductsUpdated);
     on<HomeRefreshEvent>(_onHomeRefreshEvent);
     on<HomeProductTapEvent>(_onHomeProductTapEvent);
+    on<HomeLoadMoreEvent>(_onHomeLoadMoreEvent);
   }
 
   Future<void> _onHomeInitialEvent(
@@ -27,28 +30,59 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     Emitter<HomeState> emit,
   ) async {
     emit(HomeLoading());
-    await Future.delayed(const Duration(microseconds: 1500000));
-    await _productSubscription?.cancel();
+    try {
+      _products.clear();
+      _lastDocId = null;
+      _hasMore = true;
 
-    _productSubscription = productDatabase.fetchProductsStream().listen(
-      (products) {
-        add(HomeProductsUpdated(products));
-      },
-      onError: (e) {
-        emit(HomeFailure(error: 'Stream error: $e'));
-      },
-    );
+      final initialProducts = await productDatabase.fetchProducts(limit: 10);
+      _products.addAll(initialProducts);
+      _lastDocId = initialProducts.isNotEmpty ? initialProducts.last.id : null;
+      _totalProducts = await productDatabase.getProductCount();
+      _hasMore = _products.length < _totalProducts;
+      print(
+        'Initial fetch: ${_products.length} products, total: $_totalProducts, hasMore: $_hasMore, lastDocId: $_lastDocId',
+      );
+
+      emit(HomeSuccess(products: List.from(_products), hasMore: _hasMore));
+    } catch (e) {
+      emit(HomeFailure(error: 'Failed to load products: $e'));
+    }
   }
 
-  Future<void> _onProductsUpdated(
-    HomeProductsUpdated event,
+  Future<void> _onHomeLoadMoreEvent(
+    HomeLoadMoreEvent event,
     Emitter<HomeState> emit,
   ) async {
-    //emit(HomeLoading());
-    if (event.products.isEmpty) {
-      emit(HomeFailure(error: 'No products found'));
-    } else {
-      emit(HomeSuccess(products: event.products));
+    if (!_hasMore) {
+      print('Checking for new products...');
+      final newTotal = await productDatabase.getProductCount();
+      if (newTotal > _totalProducts) {
+        _totalProducts = newTotal;
+        _hasMore = true;
+        print('New products detected, total now: $_totalProducts');
+      } else {
+        print('No more products to load');
+        return;
+      }
+    }
+
+    emit(HomeLoadingMore(products: List.from(_products)));
+    try {
+      final moreProducts = await productDatabase.fetchProducts(
+        lastDocId: _lastDocId,
+        limit: 10,
+      );
+      _products.addAll(moreProducts);
+      _lastDocId = moreProducts.isNotEmpty ? moreProducts.last.id : null;
+      _hasMore = _products.length < _totalProducts;
+      print(
+        'Load more: ${moreProducts.length} products added, total: ${_products.length}, hasMore: $_hasMore',
+      );
+
+      emit(HomeSuccess(products: List.from(_products), hasMore: _hasMore));
+    } catch (e) {
+      emit(HomeFailure(error: 'Failed to load more products: $e'));
     }
   }
 
@@ -57,7 +91,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     Emitter<HomeState> emit,
   ) async {
     final user = await Database().getCurrentUser();
-    final db = UserDatabase(uid: user!.uid);
+    if (user == null) {
+      emit(HomeAddToCartStateFailure(error: 'User not logged in'));
+      return;
+    }
+    final db = UserDatabase(uid: user.uid);
     try {
       await db.addToCart(productId: event.productId);
       emit(HomeAddToCartSuccessState());
@@ -74,33 +112,38 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     await db.signOut();
   }
 
-  @override
-  Future<void> close() {
-    _productSubscription?.cancel();
-    return super.close();
-  }
-
-  FutureOr<void> _onHomeRefreshEvent(
+  Future<void> _onHomeRefreshEvent(
     HomeRefreshEvent event,
     Emitter<HomeState> emit,
   ) async {
-    await Future.delayed(const Duration(seconds: 3));
-    await _productSubscription?.cancel();
+    emit(HomeLoading());
+    try {
+      _products.clear();
+      _lastDocId = null;
+      _hasMore = true;
 
-    _productSubscription = productDatabase.fetchProductsStream().listen(
-      (products) {
-        add(HomeProductsUpdated(products));
-      },
-      onError: (e) {
-        emit(HomeFailure(error: 'Stream error: $e'));
-      },
-    );
+      final refreshedProducts = await productDatabase.fetchProducts(limit: 10);
+      _products.addAll(refreshedProducts);
+      _lastDocId =
+          refreshedProducts.isNotEmpty ? refreshedProducts.last.id : null;
+      _totalProducts = await productDatabase.getProductCount();
+      _hasMore = _products.length < _totalProducts;
+
+      emit(HomeSuccess(products: List.from(_products), hasMore: _hasMore));
+    } catch (e) {
+      emit(HomeFailure(error: 'Failed to refresh products: $e'));
+    }
   }
 
-  FutureOr<void> _onHomeProductTapEvent(
+  Future<void> _onHomeProductTapEvent(
     HomeProductTapEvent event,
     Emitter<HomeState> emit,
-  ) {
+  ) async {
     emit(HomeNavigateToProductScreen(product: event.product));
+  }
+
+  @override
+  Future<void> close() {
+    return super.close();
   }
 }

@@ -16,7 +16,10 @@ class CartAddToCartEvent extends CartEvent {
 }
 
 class OneQuantityRemoveFromCartEvent extends CartEvent {
-  final String productName;
   final String productId;
-  OneQuantityRemoveFromCartEvent({required this.productName,required this.productId});
+  final String productName;
+  OneQuantityRemoveFromCartEvent({
+    required this.productId,
+    required this.productName,
+  });
 }
