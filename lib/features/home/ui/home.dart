@@ -42,7 +42,10 @@ class _HomeState extends State<Home> {
 
   // Category data (image paths and titles)
   final List<Map<String, String>> categories = [
-    {'title': 'Fruits and\nVegetables', 'image': 'assets/images/3652015.jpg'},
+    {
+      'title': 'Fruits & Vegetables',
+      'image': 'assets/images/3652015.jpg'
+    },
     {'title': 'Dairy & Eggs', 'image': 'assets/images/dairyandeggs.jpg'},
     {'title': 'Meat & Seafood', 'image': 'assets/images/meatandseafood.jpeg'},
     {'title': 'Snacks & Sweets', 'image': 'assets/images/snacksandsweets.jpg'},
@@ -81,11 +84,8 @@ class _HomeState extends State<Home> {
                 builder: (context) => ProductScreen(product: state.product),
               ),
             );
-          } else if (state is HomeCategoryTapState) {
-            // Handle HomeCategoryTapState if needed
           }
         },
-
         builder: (context, state) {
           print('Building state: ${state.runtimeType}');
           switch (state.runtimeType) {
@@ -109,29 +109,24 @@ class _HomeState extends State<Home> {
                   child: Column(
                     children: [
                       SizedBox(
-                        height: 120, // Consistent height for category section
-                        width:
-                            MediaQuery.of(
-                              context,
-                            ).size.width, // Constrain width
+                        height: 120,
+                        width: MediaQuery.of(context).size.width,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
                           itemCount: categories.length,
                           itemBuilder: (context, index) {
                             return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 5,
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 5),
                               child: GestureDetector(
                                 onTap: () {
                                   _homeBloc.add(
                                     HomeCategoryTapEvent(
-                                      categoryName: categories[index]['name']!,
+                                      categoryName: categories[index]['title']!,
                                     ),
                                   );
                                 },
                                 child: Container(
-                                  width: 90, // Slightly larger square box
+                                  width: 90,
                                   height: 90,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(15),
@@ -160,11 +155,16 @@ class _HomeState extends State<Home> {
                                         left: 5,
                                         right: 5,
                                         child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withOpacity(0.5),
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                          ),
                                           padding: const EdgeInsets.symmetric(
                                             vertical: 2,
                                             horizontal: 4,
                                           ),
-                                          color: Colors.black.withOpacity(0.5),
+                                          
                                           child: Text(
                                             categories[index]['title']!,
                                             style: const TextStyle(
@@ -188,38 +188,52 @@ class _HomeState extends State<Home> {
                       ),
                       const Divider(thickness: 1),
                       Expanded(
-                        child: GridView.builder(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          controller: _scrollController,
-                          gridDelegate:
-                              const SliverGridDelegateWithMaxCrossAxisExtent(
-                                maxCrossAxisExtent: 200,
-                                mainAxisExtent: 220,
-                                crossAxisSpacing: 10,
-                                mainAxisSpacing: 10,
-                              ),
-                          itemCount:
-                              successState.products.length +
-                              (successState.hasMore ? 1 : 0),
-                          itemBuilder: (context, index) {
-                            if (index == successState.products.length &&
-                                successState.hasMore) {
-                              return const Center(
-                                child: Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: SpinKitSpinningLines(
-                                    color: Color(0xFF328E6E),
-                                    size: 30.0,
-                                  ),
+                        child: successState.products.isEmpty &&
+                                successState.message != null
+                            ? Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(successState.message!),
+                                    ElevatedButton(
+                                      onPressed: () =>
+                                          _homeBloc.add(HomeInitialEvent()),
+                                      child: const Text('Back to All Products'),
+                                    ),
+                                  ],
                                 ),
-                              );
-                            }
-                            return ProductTile(
-                              homeBloc: _homeBloc,
-                              product: successState.products[index],
-                            );
-                          },
-                        ),
+                              )
+                            : GridView.builder(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                controller: _scrollController,
+                                gridDelegate:
+                                    const SliverGridDelegateWithMaxCrossAxisExtent(
+                                  maxCrossAxisExtent: 200,
+                                  mainAxisExtent: 220,
+                                  crossAxisSpacing: 10,
+                                  mainAxisSpacing: 10,
+                                ),
+                                itemCount: successState.products.length +
+                                    (successState.hasMore ? 1 : 0),
+                                itemBuilder: (context, index) {
+                                  if (index == successState.products.length &&
+                                      successState.hasMore) {
+                                    return const Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: SpinKitSpinningLines(
+                                          color: Color(0xFF328E6E),
+                                          size: 30.0,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                  return ProductTile(
+                                    homeBloc: _homeBloc,
+                                    product: successState.products[index],
+                                  );
+                                },
+                              ),
                       ),
                     ],
                   ),
@@ -238,27 +252,24 @@ class _HomeState extends State<Home> {
                   child: Column(
                     children: [
                       SizedBox(
-                        height: 120, // Consistent height
-                        width:
-                            MediaQuery.of(
-                              context,
-                            ).size.width, // Constrain width
+                        height: 120,
+                        width: MediaQuery.of(context).size.width,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
                           itemCount: categories.length,
                           itemBuilder: (context, index) {
                             return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 5,
-                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 5),
                               child: GestureDetector(
                                 onTap: () {
-                                  print(
-                                    'Tapped: ${categories[index]['title']}',
+                                  _homeBloc.add(
+                                    HomeCategoryTapEvent(
+                                      categoryName: categories[index]['title']!,
+                                    ),
                                   );
                                 },
                                 child: Container(
-                                  width: 90, // Consistent square box
+                                  width: 90,
                                   height: 90,
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(15),
@@ -320,11 +331,11 @@ class _HomeState extends State<Home> {
                           controller: _scrollController,
                           gridDelegate:
                               const SliverGridDelegateWithMaxCrossAxisExtent(
-                                maxCrossAxisExtent: 200,
-                                mainAxisExtent: 220,
-                                crossAxisSpacing: 10,
-                                mainAxisSpacing: 10,
-                              ),
+                            maxCrossAxisExtent: 200,
+                            mainAxisExtent: 220,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
+                          ),
                           itemCount: loadingMoreState.products.length + 1,
                           itemBuilder: (context, index) {
                             if (index == loadingMoreState.products.length) {
@@ -350,7 +361,18 @@ class _HomeState extends State<Home> {
                 ),
               );
             case HomeFailure:
-              return Center(child: Text((state as HomeFailure).error));
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Error: ${(state as HomeFailure).error}'),
+                    ElevatedButton(
+                      onPressed: () => _homeBloc.add(HomeInitialEvent()),
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              );
             default:
               return const Center(child: Text('Unknown state'));
           }

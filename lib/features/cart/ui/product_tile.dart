@@ -26,15 +26,16 @@ class ProductTile extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: const Icon(Icons.delete, color: Colors.white),
           ),
-          child: Card(
-            color: const Color(0xFFF9F6F7),
-            elevation: 1.5,
-            shadowColor: Colors.black,
+          // child: Card(
+          //   //color: const Color(0xFFEAECCC),
+          //   //color: const Color(0xFFF9F6F7),
+          //   //elevation: 1.5,
+          //   //shadowColor: Colors.black,
             child: Container(
               padding: const EdgeInsets.all(8.0),
               margin: const EdgeInsets.all(8.0),
               decoration: BoxDecoration(
-                color: const Color(0xFFF9F6F7),
+                //color: const Color(0xFFF9F6F7),
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: Column(
@@ -83,7 +84,7 @@ class ProductTile extends StatelessWidget {
                       //const Spacer(),
                       ConstrainedBox(
                         constraints: const BoxConstraints(
-                          minWidth: 120, // Minimum width for small quantities
+                          minWidth: 70, // Minimum width for small quantities
                           maxWidth: 200, // Maximum width for large quantities
                         ),
                         child: Container(
@@ -173,7 +174,7 @@ class ProductTile extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
+            // ),
           ),
         ),
         const SizedBox(height: 5),

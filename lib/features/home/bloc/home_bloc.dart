@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:online_shop/database/database_calls.dart';
 import 'package:online_shop/database/product_database.dart';
@@ -15,11 +16,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   String? _lastDocId;
   bool _hasMore = true;
   int _totalProducts = 0;
+  String? _currentCategory; // Track current category
 
   HomeBloc() : super(HomeInitial()) {
     on<HomeInitialEvent>(_onHomeInitialEvent);
     on<HomeAddToCartEvent>(_onHomeAddToCartEvent);
-    on<HomeLogoutEvent>(_onHomeLogoutEvent);
     on<HomeRefreshEvent>(_onHomeRefreshEvent);
     on<HomeProductTapEvent>(_onHomeProductTapEvent);
     on<HomeLoadMoreEvent>(_onHomeLoadMoreEvent);
@@ -35,13 +36,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       _products.clear();
       _lastDocId = null;
       _hasMore = true;
+      _currentCategory = null;
 
       final initialProducts = await productDatabase.fetchProducts(limit: 10);
       _products.addAll(initialProducts);
       _lastDocId = initialProducts.isNotEmpty ? initialProducts.last.id : null;
       _totalProducts = await productDatabase.getProductCount();
       _hasMore = _products.length < _totalProducts;
-      print(
+      debugPrint(
         'Initial fetch: ${_products.length} products, total: $_totalProducts, hasMore: $_hasMore, lastDocId: $_lastDocId',
       );
 
@@ -55,30 +57,32 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     HomeLoadMoreEvent event,
     Emitter<HomeState> emit,
   ) async {
-    if (!_hasMore) {
-      print('Checking for new products...');
-      final newTotal = await productDatabase.getProductCount();
-      if (newTotal > _totalProducts) {
-        _totalProducts = newTotal;
-        _hasMore = true;
-        print('New products detected, total now: $_totalProducts');
-      } else {
-        print('No more products to load');
-        return;
-      }
-    }
-
     emit(HomeLoadingMore(products: List.from(_products)));
     try {
-      final moreProducts = await productDatabase.fetchProducts(
-        lastDocId: _lastDocId,
-        limit: 10,
-      );
-      _products.addAll(moreProducts);
-      _lastDocId = moreProducts.isNotEmpty ? moreProducts.last.id : null;
+      List<Product> moreProducts;
+      if (_currentCategory != null) {
+        moreProducts = await productDatabase.fetchProductsByCategory(
+          category: _currentCategory!,
+          lastDocId: _lastDocId,
+          limit: 10,
+        );
+      } else {
+        moreProducts = await productDatabase.fetchProducts(
+          lastDocId: _lastDocId,
+          limit: 10,
+        );
+      }
+
+      if (moreProducts.isNotEmpty) {
+        _products.addAll(moreProducts);
+        _lastDocId = moreProducts.last.id;
+      }
+      _totalProducts = _currentCategory != null
+          ? await productDatabase.getProductCountByCategory(_currentCategory!)
+          : await productDatabase.getProductCount();
       _hasMore = _products.length < _totalProducts;
-      print(
-        'Load more: ${moreProducts.length} products added, total: ${_products.length}, hasMore: $_hasMore',
+      debugPrint(
+        'Load more: ${moreProducts.length} products added, total: ${_products.length}, category: ${_currentCategory ?? "all"}, totalProducts: $_totalProducts, hasMore: $_hasMore, lastDocId: $_lastDocId',
       );
 
       emit(HomeSuccess(products: List.from(_products), hasMore: _hasMore));
@@ -105,14 +109,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
   }
 
-  Future<void> _onHomeLogoutEvent(
-    HomeLogoutEvent event,
-    Emitter<HomeState> emit,
-  ) async {
-    final db = Database();
-    await db.signOut();
-  }
-
   Future<void> _onHomeRefreshEvent(
     HomeRefreshEvent event,
     Emitter<HomeState> emit,
@@ -122,6 +118,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       _products.clear();
       _lastDocId = null;
       _hasMore = true;
+      _currentCategory = null;
 
       final refreshedProducts = await productDatabase.fetchProducts(limit: 10);
       _products.addAll(refreshedProducts);
@@ -143,15 +140,46 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     emit(HomeNavigateToProductScreen(product: event.product));
   }
 
+  Future<void> _onHomeCategoryTapEvent(
+    HomeCategoryTapEvent event,
+    Emitter<HomeState> emit,
+  ) async {
+    emit(HomeLoading());
+    try {
+      _products.clear();
+      _lastDocId = null;
+      _hasMore = true;
+      _currentCategory = event.categoryName;
+
+      final categoryProducts = await productDatabase.fetchProductsByCategory(
+        category: event.categoryName,
+        limit: 10,
+      );
+      _products.addAll(categoryProducts);
+      _lastDocId = categoryProducts.isNotEmpty ? categoryProducts.last.id : null;
+      _totalProducts =
+          await productDatabase.getProductCountByCategory(event.categoryName);
+      _hasMore = _products.length < _totalProducts;
+      debugPrint(
+        'Category fetch: ${event.categoryName}, loaded: ${_products.length}, total: $_totalProducts, hasMore: $_hasMore, lastDocId: $_lastDocId',
+      );
+
+      if (categoryProducts.isEmpty) {
+        emit(HomeSuccess(
+          products: [],
+          hasMore: false,
+          message: 'No products found for ${event.categoryName}',
+        ));
+      } else {
+        emit(HomeSuccess(products: List.from(_products), hasMore: _hasMore));
+      }
+    } catch (e) {
+      emit(HomeFailure(error: 'Failed to load category products: $e'));
+    }
+  }
+
   @override
   Future<void> close() {
     return super.close();
-  }
-
-  FutureOr<void> _onHomeCategoryTapEvent(
-    HomeCategoryTapEvent event,
-    Emitter<HomeState> emit,
-  ) {
-    emit(HomeCategoryTapState(categoryName: event.categoryName));
   }
 }

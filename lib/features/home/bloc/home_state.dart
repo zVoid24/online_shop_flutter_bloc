@@ -17,7 +17,8 @@ class HomeLoadingMore extends HomeState {
 class HomeSuccess extends HomeState {
   final List<Product> products;
   final bool hasMore;
-  HomeSuccess({required this.products, required this.hasMore});
+  final String? message;
+  HomeSuccess({required this.products, required this.hasMore, this.message});
 }
 
 class HomeFailure extends HomeState {
@@ -35,9 +36,4 @@ class HomeAddToCartStateFailure extends HomeActionState {
 class HomeNavigateToProductScreen extends HomeActionState {
   final Product product;
   HomeNavigateToProductScreen({required this.product});
-}
-
-class HomeCategoryTapState extends HomeActionState {
-  final String categoryName;
-  HomeCategoryTapState({required this.categoryName});
 }

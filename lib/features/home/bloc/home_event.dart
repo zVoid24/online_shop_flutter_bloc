@@ -5,14 +5,10 @@ abstract class HomeEvent {}
 
 class HomeInitialEvent extends HomeEvent {}
 
-class HomeNavigateToCartEvent extends HomeEvent {}
-
 class HomeAddToCartEvent extends HomeEvent {
   final String productId;
   HomeAddToCartEvent({required this.productId});
 }
-
-class HomeLogoutEvent extends HomeEvent {}
 
 class HomeRefreshEvent extends HomeEvent {}
 
