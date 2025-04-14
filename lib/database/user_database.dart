@@ -57,6 +57,53 @@ class UserDatabase {
     }
   }
 
+  Future<void> confirmOrder(List<Product> products, double amount) async {
+    try {
+      final orderRef = userCollection.doc(uid).collection('order').doc();
+      
+      // Prepare the order data
+      final List<Map<String, dynamic>> orderItems = products.map((product) {
+        return {
+          'productId': product.id,
+          'name': product.name,
+          'quantity': product.quantity,
+          'price': product.price,
+        };
+      }).toList();
+
+      // Write the order to Firestore in a single set call
+      await orderRef.set({
+        'orderId': orderRef.id,
+        'items': orderItems,
+        'total': amount,
+        'date': Timestamp.now(),
+        'status': 'completed',
+      });
+
+      // Delete the cart subcollection after confirming the order
+      await deleteCartSubcollection();
+    } catch (e) {
+      throw Exception('Failed to confirm order: $e');
+    }
+  }
+
+  Future<void> deleteCartSubcollection() async {
+    try {
+      // Reference to the cart subcollection
+      final cartRef = userCollection.doc(uid).collection('cart');
+      
+      // Get all documents in the cart subcollection
+      final snapshot = await cartRef.get();
+      
+      // Delete each document in the cart
+      for (var doc in snapshot.docs) {
+        await doc.reference.delete();
+      }
+    } catch (e) {
+      throw Exception('Failed to delete cart subcollection: $e');
+    }
+  }
+
   Future<void> removeFromCart(String productId) async {
     try {
       await userCollection.doc(uid).collection('cart').doc(productId).delete();
@@ -114,6 +161,7 @@ class UserDatabase {
             price: product.price,
             imageUrl: product.imageUrl,
             quantity: quantity, // Add quantity from cart
+            category: product.category,
           ),
         );
       }
@@ -125,6 +173,19 @@ class UserDatabase {
     } catch (e) {
       print('Error fetching cart items: $e');
       throw Exception('Failed to fetch cart items: $e');
+    }
+  }
+
+  Future<double> fetchCheckOutAmount() async {
+    try {
+      final cartItems = await getCartItems();
+      final totalAmount = cartItems.fold<double>(
+        0.0,
+        (sum, item) => sum + (item.price * item.quantity),
+      );
+      return totalAmount;
+    } catch (e) {
+      throw Exception('Failed to fetch checkout amount: $e');
     }
   }
 }

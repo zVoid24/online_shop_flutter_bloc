@@ -5,10 +5,13 @@ import 'package:online_shop/models/product.dart';
 class ProductTile extends StatelessWidget {
   final Product product;
   final CartBloc cartBloc;
-  const ProductTile({super.key, required this.product, required this.cartBloc});
+  ProductTile({super.key, required this.product, required this.cartBloc});
+
+  double _amount = 0;
 
   @override
   Widget build(BuildContext context) {
+    _amount += product.quantity*product.price;
     return Column(
       children: [
         Dismissible(
@@ -26,132 +29,144 @@ class ProductTile extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: const Icon(Icons.delete, color: Colors.white),
           ),
-          // child: Card(
-          //   //color: const Color(0xFFEAECCC),
-          //   //color: const Color(0xFFF9F6F7),
-          //   //elevation: 1.5,
-          //   //shadowColor: Colors.black,
-            child: Container(
-              padding: const EdgeInsets.all(8.0),
-              margin: const EdgeInsets.all(8.0),
-              decoration: BoxDecoration(
-                //color: const Color(0xFFF9F6F7),
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        height: 100,
-                        width: 100,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8.0),
-                          image: DecorationImage(
-                            image: NetworkImage(product.imageUrl),
-                            fit: BoxFit.cover,
-                          ),
+          child: Container(
+            padding: const EdgeInsets.all(8.0),
+            margin: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  spreadRadius: 1,
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      height: 100,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.0),
+                        image: DecorationImage(
+                          image: NetworkImage(product.imageUrl),
+                          fit: BoxFit.cover,
                         ),
                       ),
-                      const SizedBox(width: 10),
-                      Column(
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             product.name,
-                            style: const TextStyle(fontSize: 20),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
+                          const SizedBox(height: 4),
                           Text(
                             product.description,
-                            style: const TextStyle(fontSize: 15),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
+                          const SizedBox(height: 4),
                           Text(
                             "\$${(product.price * product.quantity).toStringAsFixed(2)}",
                             style: const TextStyle(
-                              fontSize: 20,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
+                              color: Colors.black87,
                             ),
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                  Row(
-                    //crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      //const Spacer(),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(
-                          minWidth: 70, // Minimum width for small quantities
-                          maxWidth: 200, // Maximum width for large quantities
-                        ),
-                        child: Container(
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: Row(
-                            mainAxisSize:
-                                MainAxisSize.min, // Shrink-wrap content
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              IconButton(
-                                color: Colors.red,
-                                icon:
-                                    product.quantity == 1
-                                        ? Icon(Icons.delete)
-                                        : Icon(Icons.remove),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                ),
-                                constraints:
-                                    const BoxConstraints(), // Remove default constraints
-                                onPressed: () async {
-                                  if(product.quantity==1)
-                                  {
-                                    cartBloc.add(RemoveFromCartEvent(productId: product.id));
-                                  }
-                                  else
-                                  {
+                    ),
+                  ],
+                ),
+                //const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      height: 36, // Reduced height for compactness
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(
+                          20.0,
+                        ), // Rounded corners
+                        border: Border.all(color: Colors.grey[300]!, width: 1),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: 36,
+                            height: 36,
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(20.0),
+                                onTap: () {
+                                  if (product.quantity == 1) {
                                     cartBloc.add(
-                                    OneQuantityRemoveFromCartEvent(
-                                      productName: product.name,
-                                      productId: product.id,
-                                    ),
-                                  );
+                                      RemoveFromCartEvent(
+                                        productId: product.id,
+                                      ),
+                                    );
+                                  } else {
+                                    cartBloc.add(
+                                      OneQuantityRemoveFromCartEvent(
+                                        productName: product.name,
+                                        productId: product.id,
+                                      ),
+                                    );
                                   }
                                 },
-                              ),
-                              const VerticalDivider(
-                                color: Colors.grey,
-                                thickness: 1,
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                ),
-                                child: Text(
-                                  "${product.quantity}",
-                                  style: const TextStyle(fontSize: 15),
+                                child: Icon(
+                                  product.quantity == 1
+                                      ? Icons.delete
+                                      : Icons.remove,
+                                  size: 18,
+                                  color:
+                                      product.quantity == 1
+                                          ? Colors.red
+                                          : Colors.black54,
                                 ),
                               ),
-                              const VerticalDivider(
-                                color: Colors.grey,
-                                thickness: 1,
+                            ),
+                          ),
+                          Container(
+                            width: 40,
+                            alignment: Alignment.center,
+                            child: Text(
+                              "${product.quantity}",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
                               ),
-                              IconButton(
-                                color: Colors.green,
-                                icon: const Icon(Icons.add),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                ),
-                                constraints:
-                                    const BoxConstraints(), // Remove default constraints
-                                onPressed: () async {
+                            ),
+                          ),
+                          SizedBox(
+                            width: 36,
+                            height: 36,
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(20.0),
+                                onTap: () {
                                   cartBloc.add(
                                     CartAddToCartEvent(productId: product.id),
                                   );
@@ -165,16 +180,21 @@ class ProductTile extends StatelessWidget {
                                     ),
                                   );
                                 },
+                                child: const Icon(
+                                  Icons.add,
+                                  size: 18,
+                                  color: Colors.green,
+                                ),
                               ),
-                            ],
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                ],
-              ),
-            // ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
         const SizedBox(height: 5),

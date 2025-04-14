@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:online_shop/database/database_calls.dart';
+import 'package:online_shop/database/product_database.dart';
 import 'package:online_shop/database/user_database.dart';
 import 'package:online_shop/features/cart/ui/cart.dart';
 import 'package:online_shop/features/home/ui/home.dart';
@@ -20,17 +21,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final ProductDatabase _productDatabase = ProductDatabase();
   int _selectedIndex = 0;
 
   // Provide ProfileBloc for the Profile widget
   late final List<Widget> _pages = [
     const Home(),
-    const Search(),
+    Search(productDatabase: _productDatabase,),
     const Cart(),
-    BlocProvider(
-      create: (context) => ProfileBloc(),
-      child: const Profile(),
-    ),
+    BlocProvider(create: (context) => ProfileBloc(), child: const Profile()),
   ];
 
   static const List<String> _titles = ['Home', 'Search', 'Cart', 'Profile'];
@@ -163,11 +162,17 @@ class _HomeScreenState extends State<HomeScreen> {
             items: const [
               BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.search), label: 'Search'),
+                icon: Icon(Icons.search),
+                label: 'Search',
+              ),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.shopping_cart), label: 'Cart'),
+                icon: Icon(Icons.shopping_cart),
+                label: 'Cart',
+              ),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.person), label: 'Profile'),
+                icon: Icon(Icons.person),
+                label: 'Profile',
+              ),
             ],
             currentIndex: _selectedIndex,
             selectedItemColor: const Color(0xFF328E6E),

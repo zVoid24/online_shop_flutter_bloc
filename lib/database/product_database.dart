@@ -1,9 +1,76 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/widgets.dart';
 import 'package:online_shop/models/product.dart';
 
 class ProductDatabase {
-  final CollectionReference productCollection =
-      FirebaseFirestore.instance.collection('products');
+  final CollectionReference productCollection = FirebaseFirestore.instance
+      .collection('products');
+
+  Future<List<Product>> searchProducts({
+    required String searchQuery,
+    String? lastDocId,
+    int limit = 10,
+  }) async {
+    try {
+      if (searchQuery.isEmpty) {
+        debugPrint('Search query is empty, returning empty list');
+        return [];
+      }
+
+      // Normalize query to lowercase for case-insensitive search
+      final normalizedQuery = searchQuery.trim().toLowerCase();
+      final endQuery = normalizedQuery + '\uf8ff'; // Prefix search
+
+      // Query nameLower field instead of Name
+      Query query = productCollection
+          .where('nameLower', isGreaterThanOrEqualTo: normalizedQuery)
+          .where('nameLower', isLessThanOrEqualTo: endQuery)
+          .orderBy('nameLower')
+          .orderBy(FieldPath.documentId)
+          .limit(limit);
+
+      if (lastDocId != null) {
+        print('Fetching after lastDocId: $lastDocId for search: $searchQuery');
+        final lastDoc = await productCollection.doc(lastDocId).get();
+        if (!lastDoc.exists) {
+          print(
+            'Last document with ID $lastDocId does not exist, fetching from start',
+          );
+          query = productCollection
+              .where('nameLower', isGreaterThanOrEqualTo: normalizedQuery)
+              .where('nameLower', isLessThanOrEqualTo: endQuery)
+              .orderBy('nameLower')
+              .orderBy(FieldPath.documentId)
+              .limit(limit);
+        } else {
+          query = query.startAfterDocument(lastDoc);
+        }
+      }
+
+      final QuerySnapshot snapshot = await query.get();
+      final products =
+          snapshot.docs.map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            return Product(
+              id: doc.id,
+              name: data['Name'] as String? ?? 'Unnamed Product',
+              description:
+                  data['Description'] as String? ?? 'No description available',
+              price: (data['Price'] as num?)?.toDouble() ?? 0.0,
+              imageUrl: data['Image'] as String? ?? '',
+              category: data['Category'] as String ?? 'No Category Availabe',
+            );
+          }).toList();
+
+      print(
+        'Fetched ${products.length} products for search "$searchQuery": ${products.map((p) => p.name).toList()}',
+      );
+      return products;
+    } catch (e) {
+      print('Error searching products: $e');
+      throw Exception('Failed to search products: $e');
+    }
+  }
 
   Future<List<Product>> fetchProducts({
     String? lastDocId,
@@ -19,7 +86,9 @@ class ProductDatabase {
         print('Fetching after lastDocId: $lastDocId');
         final lastDoc = await productCollection.doc(lastDocId).get();
         if (!lastDoc.exists) {
-          print('Last document with ID $lastDocId does not exist, fetching from start');
+          print(
+            'Last document with ID $lastDocId does not exist, fetching from start',
+          );
           query = productCollection
               .orderBy('Name')
               .orderBy(FieldPath.documentId)
@@ -30,16 +99,19 @@ class ProductDatabase {
       }
 
       final QuerySnapshot snapshot = await query.get();
-      final products = snapshot.docs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        return Product(
-          id: doc.id,
-          name: data['Name'] as String? ?? 'Unnamed Product',
-          description: data['Description'] as String? ?? 'No description available',
-          price: (data['Price'] as num?)?.toDouble() ?? 0.0,
-          imageUrl: data['Image'] as String? ?? '',
-        );
-      }).toList();
+      final products =
+          snapshot.docs.map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            return Product(
+              id: doc.id,
+              name: data['Name'] as String? ?? 'Unnamed Product',
+              description:
+                  data['Description'] as String? ?? 'No description available',
+              price: (data['Price'] as num?)?.toDouble() ?? 0.0,
+              imageUrl: data['Image'] as String? ?? '',
+              category: data['Category'] as String ?? 'No Category Availabe',
+            );
+          }).toList();
       print(
         'Fetched ${products.length} products: ${products.map((p) => p.name).toList()}',
       );
@@ -67,7 +139,9 @@ class ProductDatabase {
         print('Fetching after lastDocId: $lastDocId for category: $category');
         final lastDoc = await productCollection.doc(lastDocId).get();
         if (!lastDoc.exists) {
-          print('Last document with ID $lastDocId does not exist, fetching from start');
+          print(
+            'Last document with ID $lastDocId does not exist, fetching from start',
+          );
           query = productCollection
               .where('Category', isEqualTo: category)
               .orderBy('Name')
@@ -79,16 +153,19 @@ class ProductDatabase {
       }
 
       final QuerySnapshot snapshot = await query.get();
-      final products = snapshot.docs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        return Product(
-          id: doc.id,
-          name: data['Name'] as String? ?? 'Unnamed Product',
-          description: data['Description'] as String? ?? 'No description available',
-          price: (data['Price'] as num?)?.toDouble() ?? 0.0,
-          imageUrl: data['Image'] as String? ?? '',
-        );
-      }).toList();
+      final products =
+          snapshot.docs.map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            return Product(
+              id: doc.id,
+              name: data['Name'] as String? ?? 'Unnamed Product',
+              description:
+                  data['Description'] as String? ?? 'No description available',
+              price: (data['Price'] as num?)?.toDouble() ?? 0.0,
+              imageUrl: data['Image'] as String? ?? '',
+              category: data['Category'] as String ?? 'No Category Availabe',
+            );
+          }).toList();
       print(
         'Fetched ${products.length} products for category $category: ${products.map((p) => p.name).toList()}',
       );
@@ -108,9 +185,11 @@ class ProductDatabase {
           Product(
             id: doc.id,
             name: data['Name'] as String? ?? 'Unnamed Product',
-            description: data['Description'] as String? ?? 'No description available',
+            description:
+                data['Description'] as String? ?? 'No description available',
             price: (data['Price'] as num?)?.toDouble() ?? 0.0,
             imageUrl: data['Image'] as String? ?? '',
+            category: data['Category'] as String ?? 'No Category Availabe',
           ),
         ];
       } else {
@@ -134,10 +213,11 @@ class ProductDatabase {
 
   Future<int> getProductCountByCategory(String category) async {
     try {
-      final snapshot = await productCollection
-          .where('Category', isEqualTo: category)
-          .count()
-          .get();
+      final snapshot =
+          await productCollection
+              .where('Category', isEqualTo: category)
+              .count()
+              .get();
       return snapshot.count ?? 0;
     } catch (e) {
       print('Error getting product count for category $category: $e');

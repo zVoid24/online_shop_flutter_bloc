@@ -23,3 +23,8 @@ class OneQuantityRemoveFromCartEvent extends CartEvent {
     required this.productName,
   });
 }
+
+class CheckOutButtonClicked extends CartEvent {
+  final double amount;
+  CheckOutButtonClicked({required this.amount});
+}

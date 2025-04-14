@@ -42,10 +42,7 @@ class _HomeState extends State<Home> {
 
   // Category data (image paths and titles)
   final List<Map<String, String>> categories = [
-    {
-      'title': 'Fruits & Vegetables',
-      'image': 'assets/images/3652015.jpg'
-    },
+    {'title': 'Fruits & Vegetables', 'image': 'assets/images/3652015.jpg'},
     {'title': 'Dairy & Eggs', 'image': 'assets/images/dairyandeggs.jpg'},
     {'title': 'Meat & Seafood', 'image': 'assets/images/meatandseafood.jpeg'},
     {'title': 'Snacks & Sweets', 'image': 'assets/images/snacksandsweets.jpg'},
@@ -116,7 +113,9 @@ class _HomeState extends State<Home> {
                           itemCount: categories.length,
                           itemBuilder: (context, index) {
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 5),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                              ),
                               child: GestureDetector(
                                 onTap: () {
                                   _homeBloc.add(
@@ -125,61 +124,64 @@ class _HomeState extends State<Home> {
                                     ),
                                   );
                                 },
-                                child: Container(
-                                  width: 90,
-                                  height: 90,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.3),
-                                        spreadRadius: 2,
-                                        blurRadius: 5,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Stack(
-                                    children: [
-                                      ClipRRect(
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 90,
+                                      height: 90,
+                                      decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(15),
-                                        child: Image.asset(
-                                          categories[index]['image']!,
-                                          fit: BoxFit.cover,
-                                          width: 90,
-                                          height: 90,
-                                        ),
                                       ),
-                                      Positioned(
-                                        bottom: 5,
-                                        left: 5,
-                                        right: 5,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: Colors.black.withOpacity(0.5),
-                                            borderRadius:
-                                                BorderRadius.circular(15),
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 2,
-                                            horizontal: 4,
-                                          ),
-                                          
-                                          child: Text(
-                                            categories[index]['title']!,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12,
-                                              height: 1.2,
+                                      child: Stack(
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                              15,
                                             ),
-                                            textAlign: TextAlign.center,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
+                                            child: Image.asset(
+                                              categories[index]['image']!,
+                                              fit: BoxFit.cover,
+                                              width: 90,
+                                              height: 90,
+                                            ),
                                           ),
-                                        ),
+                                          Positioned(
+                                            bottom: 5,
+                                            left: 5,
+                                            right: 5,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.black.withOpacity(
+                                                  0.5,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 2,
+                                                    horizontal: 4,
+                                                  ),
+
+                                              child: Text(
+                                                categories[index]['title']!,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12,
+                                                  height: 1.2,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                    SizedBox(width: 8),
+                                  ],
                                 ),
                               ),
                             );
@@ -188,52 +190,59 @@ class _HomeState extends State<Home> {
                       ),
                       const Divider(thickness: 1),
                       Expanded(
-                        child: successState.products.isEmpty &&
-                                successState.message != null
-                            ? Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(successState.message!),
-                                    ElevatedButton(
-                                      onPressed: () =>
-                                          _homeBloc.add(HomeInitialEvent()),
-                                      child: const Text('Back to All Products'),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : GridView.builder(
-                                physics: const AlwaysScrollableScrollPhysics(),
-                                controller: _scrollController,
-                                gridDelegate:
-                                    const SliverGridDelegateWithMaxCrossAxisExtent(
-                                  maxCrossAxisExtent: 200,
-                                  mainAxisExtent: 220,
-                                  crossAxisSpacing: 10,
-                                  mainAxisSpacing: 10,
-                                ),
-                                itemCount: successState.products.length +
-                                    (successState.hasMore ? 1 : 0),
-                                itemBuilder: (context, index) {
-                                  if (index == successState.products.length &&
-                                      successState.hasMore) {
-                                    return const Center(
-                                      child: Padding(
-                                        padding: EdgeInsets.all(8.0),
-                                        child: SpinKitSpinningLines(
-                                          color: Color(0xFF328E6E),
-                                          size: 30.0,
+                        child:
+                            successState.products.isEmpty &&
+                                    successState.message != null
+                                ? Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(successState.message!),
+                                      ElevatedButton(
+                                        onPressed:
+                                            () => _homeBloc.add(
+                                              HomeInitialEvent(),
+                                            ),
+                                        child: const Text(
+                                          'Back to All Products',
                                         ),
                                       ),
+                                    ],
+                                  ),
+                                )
+                                : GridView.builder(
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  controller: _scrollController,
+                                  gridDelegate:
+                                      const SliverGridDelegateWithMaxCrossAxisExtent(
+                                        maxCrossAxisExtent: 200,
+                                        mainAxisExtent: 220,
+                                        crossAxisSpacing: 10,
+                                        mainAxisSpacing: 10,
+                                      ),
+                                  itemCount:
+                                      successState.products.length +
+                                      (successState.hasMore ? 1 : 0),
+                                  itemBuilder: (context, index) {
+                                    if (index == successState.products.length &&
+                                        successState.hasMore) {
+                                      return const Center(
+                                        child: Padding(
+                                          padding: EdgeInsets.all(8.0),
+                                          child: SpinKitSpinningLines(
+                                            color: Color(0xFF328E6E),
+                                            size: 30.0,
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                    return ProductTile(
+                                      homeBloc: _homeBloc,
+                                      product: successState.products[index],
                                     );
-                                  }
-                                  return ProductTile(
-                                    homeBloc: _homeBloc,
-                                    product: successState.products[index],
-                                  );
-                                },
-                              ),
+                                  },
+                                ),
                       ),
                     ],
                   ),
@@ -259,7 +268,9 @@ class _HomeState extends State<Home> {
                           itemCount: categories.length,
                           itemBuilder: (context, index) {
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 5),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                              ),
                               child: GestureDetector(
                                 onTap: () {
                                   _homeBloc.add(
@@ -268,56 +279,64 @@ class _HomeState extends State<Home> {
                                     ),
                                   );
                                 },
-                                child: Container(
-                                  width: 90,
-                                  height: 90,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.3),
-                                        spreadRadius: 2,
-                                        blurRadius: 5,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Stack(
-                                    children: [
-                                      ClipRRect(
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 90,
+                                      height: 90,
+                                      decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(15),
-                                        child: Image.asset(
-                                          categories[index]['image']!,
-                                          fit: BoxFit.cover,
-                                          width: 90,
-                                          height: 90,
-                                        ),
                                       ),
-                                      Positioned(
-                                        bottom: 5,
-                                        left: 5,
-                                        right: 5,
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 2,
-                                            horizontal: 4,
-                                          ),
-                                          color: Colors.black.withOpacity(0.5),
-                                          child: Text(
-                                            categories[index]['title']!,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12,
-                                              height: 1.2,
+                                      child: Stack(
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                              15,
                                             ),
-                                            textAlign: TextAlign.center,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
+                                            child: Image.asset(
+                                              categories[index]['image']!,
+                                              fit: BoxFit.cover,
+                                              width: 90,
+                                              height: 90,
+                                            ),
                                           ),
-                                        ),
+                                          Positioned(
+                                            bottom: 5,
+                                            left: 5,
+                                            right: 5,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.black.withOpacity(
+                                                  0.5,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(15),
+                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 2,
+                                                    horizontal: 4,
+                                                  ),
+
+                                              child: Text(
+                                                categories[index]['title']!,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12,
+                                                  height: 1.2,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                    SizedBox(width: 8),
+                                  ],
                                 ),
                               ),
                             );
@@ -331,11 +350,11 @@ class _HomeState extends State<Home> {
                           controller: _scrollController,
                           gridDelegate:
                               const SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 200,
-                            mainAxisExtent: 220,
-                            crossAxisSpacing: 10,
-                            mainAxisSpacing: 10,
-                          ),
+                                maxCrossAxisExtent: 200,
+                                mainAxisExtent: 220,
+                                crossAxisSpacing: 10,
+                                mainAxisSpacing: 10,
+                              ),
                           itemCount: loadingMoreState.products.length + 1,
                           itemBuilder: (context, index) {
                             if (index == loadingMoreState.products.length) {

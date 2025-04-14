@@ -13,6 +13,7 @@ class Cart extends StatefulWidget {
 
 class _CartState extends State<Cart> {
   final CartBloc _cartBloc = CartBloc();
+  double _amount = 0;
 
   @override
   void initState() {
@@ -43,6 +44,16 @@ class _CartState extends State<Cart> {
               backgroundColor: Colors.red,
             ),
           );
+        } else if (state is CheckOutSuccess) {
+          _cartBloc.add(CartInitialEvent());
+        } else if (state is CheckOutFailure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Checkout Failed'),
+              duration: const Duration(seconds: 1),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       },
       builder: (context, state) {
@@ -58,17 +69,87 @@ class _CartState extends State<Cart> {
               },
               color: const Color(0xFF328E6E),
               backgroundColor: const Color(0xFFEAECCC),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
-                child: ListView.builder(
-                  itemCount: products.length,
-                  itemBuilder: (context, index) {
-                    return ProductTile(
-                      cartBloc: _cartBloc,
-                      product: products[index],
-                    );
-                  },
-                ),
+              child: Column(
+                children: [
+                  // Wrap ListView in Expanded to leave space for the button
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+                      child: ListView.builder(
+                        itemCount: products.length,
+                        itemBuilder: (context, index) {
+                          return ProductTile(
+                            cartBloc: _cartBloc,
+                            product: products[index],
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  // Add Checkout Button
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 10,
+                    ),
+                    child: SizedBox(
+                      width: double.infinity, // Full-width button
+                      child: ElevatedButton(
+                        onPressed:
+                            products.isEmpty
+                                ? null // Disable button if cart is empty
+                                : () async {
+                                  // Add checkout logic here
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Proceeding to checkout...',
+                                      ),
+                                      duration: Duration(seconds: 1),
+                                    ),
+                                  );
+                                  _cartBloc.add(
+                                    CheckOutButtonClicked(amount: state.amount),
+                                  );
+                                  // Example: Navigate to a checkout screen
+                                  // Navigator.push(context, MaterialPageRoute(builder: (context) => CheckoutScreen()));
+                                },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(
+                            0xFF328E6E,
+                          ), // Button color
+                          foregroundColor: Colors.white, // Text/icon color
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'Checkout :',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(width: 20),
+                              Text(
+                                '\$${state.amount.toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             );
           case EmptyCartState _:

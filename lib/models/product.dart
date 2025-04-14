@@ -5,6 +5,7 @@ class Product {
   final double price;
   final String imageUrl;
   final int quantity;
+  final String category;
 
   Product({
     required this.id,
@@ -13,5 +14,6 @@ class Product {
     required this.price,
     required this.imageUrl,
     this.quantity = 1,
+    required this.category
   });
 }

@@ -238,6 +238,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.2.1"
+  flutter_sslcommerz:
+    dependency: "direct main"
+    description:
+      name: flutter_sslcommerz
+      sha256: "0ab1a3cf7e9b29ec9c06107192223c384ed2613da65b8635218265097ed83541"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.4"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -320,6 +328,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.6.0"
+  json_annotation:
+    dependency: transitive
+    description:
+      name: json_annotation
+      sha256: "1ce844379ca14835a50d2f019a3099f419082cfdd231cd86a142af94dd5c6bb1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.9.0"
   leak_tracker:
     dependency: transitive
     description:
