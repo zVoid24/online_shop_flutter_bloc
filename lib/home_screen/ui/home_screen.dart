@@ -5,6 +5,7 @@ import 'package:online_shop/database/database_calls.dart';
 import 'package:online_shop/database/product_database.dart';
 import 'package:online_shop/database/user_database.dart';
 import 'package:online_shop/features/cart/ui/cart.dart';
+import 'package:online_shop/features/help/ui/help.dart';
 import 'package:online_shop/features/home/ui/home.dart';
 import 'package:online_shop/features/profile/bloc/profile_bloc.dart';
 import 'package:online_shop/features/profile/ui/profile.dart';
@@ -27,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // Provide ProfileBloc for the Profile widget
   late final List<Widget> _pages = [
     const Home(),
-    Search(productDatabase: _productDatabase,),
+    Search(productDatabase: _productDatabase),
     const Cart(),
     BlocProvider(create: (context) => ProfileBloc(), child: const Profile()),
   ];
@@ -70,6 +71,12 @@ class _HomeScreenState extends State<HomeScreen> {
         // if (state is HomeScreenLogoutState) {
         //   Navigator.pushReplacementNamed(context, '/wrapper');
         // }
+        if (state is HomeScreenNavigateToHelpState) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Help()),
+          );
+        }
       },
       builder: (context, state) {
         return Scaffold(

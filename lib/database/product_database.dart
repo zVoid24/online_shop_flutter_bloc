@@ -19,7 +19,7 @@ class ProductDatabase {
 
       // Normalize query to lowercase for case-insensitive search
       final normalizedQuery = searchQuery.trim().toLowerCase();
-      final endQuery = '$normalizedQuery\uf8ff'; // Prefix search
+      final endQuery = normalizedQuery + '\uf8ff'; // Prefix search
 
       // Query nameLower field instead of Name
       Query query = productCollection

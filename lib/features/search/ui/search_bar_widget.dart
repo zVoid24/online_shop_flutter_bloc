@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:online_shop/features/home/bloc/home_bloc.dart';
 import 'package:online_shop/features/product_screen/ui/product.dart';
 import 'package:online_shop/features/search/bloc/search_bloc.dart';
 import 'package:online_shop/models/product.dart';

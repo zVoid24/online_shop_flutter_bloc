@@ -5,10 +5,86 @@ import 'product_database.dart';
 
 class UserDatabase {
   final String uid;
-  UserDatabase({required this.uid});
   final CollectionReference userCollection = FirebaseFirestore.instance
       .collection('users');
+  final CollectionReference conversationsCollection = FirebaseFirestore.instance
+      .collection('conversations');
+  UserDatabase({required this.uid});
+  // Removed duplicate declaration of userCollection
   final ProductDatabase _productDatabase = ProductDatabase();
+
+  Future<void> sendMessage(String text, String sender) async {
+    try {
+      final conversationRef = conversationsCollection.doc(uid);
+      final messagesRef = conversationRef.collection('messages');
+
+      // Add the new message to the messages subcollection
+      await messagesRef.add({
+        'sender': sender, // 'user' or 'admin'
+        'text': text,
+        'timestamp': Timestamp.now(),
+      });
+
+      // Update the conversation document with the last message details
+      await conversationRef.set({
+        'userId': uid,
+        'lastMessage': text,
+        'lastMessageTime': Timestamp.now(),
+        'lastMessageSender': sender,
+      }, SetOptions(merge: true));
+    } catch (e) {
+      throw Exception('Failed to send message: $e');
+    }
+  }
+
+  // Get a stream of messages for a conversation
+  Stream<List<Map<String, dynamic>>> getMessagesStream() {
+    print('Fetching messages for UID: $uid');
+    return conversationsCollection
+        .doc(uid)
+        .collection('messages')
+        .orderBy('timestamp', descending: false)
+        .snapshots()
+        .map((snapshot) {
+          try {
+            var messages =
+                snapshot.docs.map((doc) {
+                  final data = doc.data() as Map<String, dynamic>;
+                  return {
+                    'sender': data['sender']?.toString() ?? 'unknown',
+                    'text': data['text']?.toString() ?? '',
+                    'timestamp':
+                        (data['timestamp'] as Timestamp?)?.toDate() ??
+                        DateTime.now(),
+                  };
+                }).toList();
+            print('Messages fetched: $messages');
+            return messages;
+          } catch (e) {
+            print('Error mapping messages: $e');
+            return [];
+          }
+        });
+  }
+
+  // Get a stream of all conversations (for admin panel)
+  Stream<List<Map<String, dynamic>>> getAllConversationsStream() {
+    return conversationsCollection
+        .orderBy('lastMessageTime', descending: true)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs.map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            return {
+              'userId': data['userId'] as String,
+              'lastMessage': data['lastMessage'] as String,
+              'lastMessageTime':
+                  (data['lastMessageTime'] as Timestamp?)?.toDate(),
+              'lastMessageSender': data['lastMessageSender'] as String,
+            };
+          }).toList();
+        });
+  }
 
   Future<void> createUserData({
     required String name,
@@ -60,16 +136,17 @@ class UserDatabase {
   Future<void> confirmOrder(List<Product> products, double amount) async {
     try {
       final orderRef = userCollection.doc(uid).collection('order').doc();
-      
+
       // Prepare the order data
-      final List<Map<String, dynamic>> orderItems = products.map((product) {
-        return {
-          'productId': product.id,
-          'name': product.name,
-          'quantity': product.quantity,
-          'price': product.price,
-        };
-      }).toList();
+      final List<Map<String, dynamic>> orderItems =
+          products.map((product) {
+            return {
+              'productId': product.id,
+              'name': product.name,
+              'quantity': product.quantity,
+              'price': product.price,
+            };
+          }).toList();
 
       // Write the order to Firestore in a single set call
       await orderRef.set({
@@ -91,10 +168,10 @@ class UserDatabase {
     try {
       // Reference to the cart subcollection
       final cartRef = userCollection.doc(uid).collection('cart');
-      
+
       // Get all documents in the cart subcollection
       final snapshot = await cartRef.get();
-      
+
       // Delete each document in the cart
       for (var doc in snapshot.docs) {
         await doc.reference.delete();
