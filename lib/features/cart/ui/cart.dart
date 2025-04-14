@@ -13,7 +13,7 @@ class Cart extends StatefulWidget {
 
 class _CartState extends State<Cart> {
   final CartBloc _cartBloc = CartBloc();
-  double _amount = 0;
+  final double _amount = 0;
 
   @override
   void initState() {
