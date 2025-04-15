@@ -21,6 +21,12 @@ class _ProductScreenState extends State<ProductScreen> {
   }
 
   @override
+  void dispose() {
+    _productScreenBloc.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: BlocConsumer<ProductScreenBloc, ProductScreenState>(

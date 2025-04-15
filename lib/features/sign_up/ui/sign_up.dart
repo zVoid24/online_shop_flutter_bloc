@@ -19,6 +19,7 @@ class _SignUpState extends State<SignUp> {
   void initState() {
     super.initState();
   }
+  
 
   @override
   Widget build(BuildContext context) {

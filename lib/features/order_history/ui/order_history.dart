@@ -33,6 +33,12 @@ class _OrderHistoryState extends State<OrderHistory> {
     }
   }
 
+  @override 
+  void dispose() {
+    _orderHistoryBloc.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -313,7 +313,7 @@ class _HomeState extends State<Home> {
                                           isSelected
                                               ? Color(0xFF328E6E)
                                               : Colors.grey,
-                                      width: isSelected ? 3 : 1,
+                                      width: isSelected ? 3 : 0,
                                     ),
                                     borderRadius: BorderRadius.circular(15),
                                   ),

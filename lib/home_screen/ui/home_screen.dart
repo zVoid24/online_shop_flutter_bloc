@@ -50,21 +50,12 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _homeScreenBloc.add(HomeScreenInitialEvent());
-    // Initialize pages with user check
-    final user = FirebaseAuth.instance.currentUser;
-    _pages = [
-      const Home(),
-      Search(productDatabase: _productDatabase),
-      const Cart(),
-      user != null
-          ? BlocProvider(
-            create:
-                (context) =>
-                    ProfileBloc(userDatabase: UserDatabase(uid: user.uid)),
-            child: const Profile(),
-          )
-          : const Center(child: Text('Please sign in to view profile')),
-    ];
+  }
+
+  @override
+  void dispose(){
+    _homeScreenBloc.close();
+    super.dispose();
   }
 
   void _onItemTapped(int index) {
@@ -181,7 +172,24 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-          body: _pages[_selectedIndex],
+          body: () {
+            switch (_selectedIndex) {
+              case 0:
+                return const Home();
+              case 1:
+                return Search(productDatabase: _productDatabase);
+              case 2:
+                return const Cart();
+              case 3:
+                return BlocProvider(
+                  create: (context) =>
+                      ProfileBloc(userDatabase: UserDatabase(uid: FirebaseAuth.instance.currentUser!.uid)),
+                  child: const Profile(),
+                );
+              default:
+                return const Center(child: Text('Page not found'));
+            }
+          }(),
           bottomNavigationBar: BottomNavigationBar(
             items: const [
               BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
