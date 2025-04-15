@@ -26,7 +26,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ProductDatabase _productDatabase = ProductDatabase();
-  int _selectedIndex = 0;
+  final int _selectedIndex = 0;
   static const List<String> _titles = ['Home', 'Search', 'Cart', 'Profile'];
 
   final HomeScreenBloc _homeScreenBloc = HomeScreenBloc();

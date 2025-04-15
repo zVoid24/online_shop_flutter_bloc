@@ -15,7 +15,7 @@ class _HelpState extends State<Help> {
   final HelpBloc _helpBloc = HelpBloc();
   final user = FirebaseAuth.instance.currentUser;
   late String uid;
-  TextEditingController _messageController = TextEditingController();
+  final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
   @override

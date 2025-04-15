@@ -290,7 +290,7 @@ class _HomeState extends State<Home> {
                           itemBuilder: (context, index) {
                             final category = categories[index];
                             final isSelected =
-                                (state as HomeLoadingMore).selectedCategory ==
+                                (state).selectedCategory ==
                                 category['title'];
                             return Padding(
                               padding: const EdgeInsets.symmetric(

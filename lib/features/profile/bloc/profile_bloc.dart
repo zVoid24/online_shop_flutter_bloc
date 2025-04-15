@@ -1,7 +1,6 @@
 // lib/features/profile/bloc/profile_bloc.dart
 import 'dart:async';
 import 'package:bloc/bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:online_shop/database/database_calls.dart';
 import 'package:online_shop/database/user_database.dart';
 import 'package:online_shop/features/profile/cached_data/shared_prefs.dart';
@@ -92,9 +91,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     emit(ProfileLoading());
     try {
       final Database user = Database();
-      if (user == null) {
-        throw Exception('No user is signed in');
-      }
 
       await user.updateMail(email: event.email, password: event.password);
       debugPrint('Verification email sent to ${event.email}');

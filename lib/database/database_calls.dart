@@ -15,12 +15,8 @@ class Database {
         await user.reauthenticateWithCredential(credential);
         debugPrint('Re-authenticated user: ${user.email}');
       }
-      if (user != null) {
-        await user.verifyBeforeUpdateEmail(email);
-      } else {
-        throw Exception('No user is currently signed in.');
-      }
-    } catch (e) {
+      await user.verifyBeforeUpdateEmail(email);
+        } catch (e) {
       throw Exception(e);
     }
   }

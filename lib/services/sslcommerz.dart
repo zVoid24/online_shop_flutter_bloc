@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_sslcommerz/model/SSLCSdkType.dart';
 import 'package:flutter_sslcommerz/model/SSLCommerzInitialization.dart';
 import 'package:flutter_sslcommerz/model/SSLCurrencyType.dart';
-import 'package:online_shop/database/database_calls.dart';
 import 'package:online_shop/database/user_database.dart';
 import 'package:flutter_sslcommerz/sslcommerz.dart';
 

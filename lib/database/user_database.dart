@@ -60,7 +60,7 @@ class UserDatabase {
           try {
             var messages =
                 snapshot.docs.map((doc) {
-                  final data = doc.data() as Map<String, dynamic>;
+                  final data = doc.data();
                   return {
                     'sender': data['sender']?.toString() ?? 'unknown',
                     'text': data['text']?.toString() ?? '',
@@ -177,7 +177,7 @@ class UserDatabase {
       final orderSnapshot = await userCollection.doc(uid).collection('orders').orderBy('date', descending: true).get();
       final orders = <shop.Order>[];
       for (var doc in orderSnapshot.docs) {
-        final data = doc.data() as Map<String, dynamic>;
+        final data = doc.data();
         final itemsData = List<Map<String, dynamic>>.from(data['items'] ?? []);
         final items = itemsData.map((item) {
           return Product(

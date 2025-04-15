@@ -1,10 +1,8 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:meta/meta.dart';
 import 'package:online_shop/database/user_database.dart';
-import 'package:online_shop/models/user.dart';
 
 part 'help_event.dart';
 part 'help_state.dart';
