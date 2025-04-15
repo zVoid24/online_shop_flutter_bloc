@@ -1,3 +1,4 @@
+// lib/features/profile/bloc/profile_state.dart
 part of 'profile_bloc.dart';
 
 @immutable
@@ -11,12 +12,30 @@ class ProfileLoading extends ProfileState {}
 
 class ProfileSuccess extends ProfileState {
   final UserData user;
+
   ProfileSuccess({required this.user});
+}
+
+class ProfileFailure extends ProfileState {
+  final String error;
+
+  ProfileFailure({required this.error});
 }
 
 class ProfilePasswordChangeButtonPressed extends ProfileActionState {}
 
-class ProfileFailure extends ProfileState {
+class ProfileChangeEmailButtonPressedState extends ProfileActionState {}
+
+class ProfileVerificationSent extends ProfileActionState {
+  final String newEmail;
+
+  ProfileVerificationSent({required this.newEmail});
+}
+
+class ProfileUpdateSuccess extends ProfileActionState {}
+
+class ProfileUpdateFailure extends ProfileActionState {
   final String error;
-  ProfileFailure({required this.error});
+
+  ProfileUpdateFailure({required this.error});
 }

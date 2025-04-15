@@ -13,7 +13,6 @@ class Cart extends StatefulWidget {
 
 class _CartState extends State<Cart> {
   final CartBloc _cartBloc = CartBloc();
-  double _amount = 0;
 
   @override
   void initState() {
@@ -46,6 +45,13 @@ class _CartState extends State<Cart> {
           );
         } else if (state is CheckOutSuccess) {
           _cartBloc.add(CartInitialEvent());
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('PDF has been saved in ${state.filePath}'),
+              duration: const Duration(seconds: 3),
+              backgroundColor: Colors.green,
+            ),
+          );
         } else if (state is CheckOutFailure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -71,7 +77,6 @@ class _CartState extends State<Cart> {
               backgroundColor: const Color(0xFFEAECCC),
               child: Column(
                 children: [
-                  // Wrap ListView in Expanded to leave space for the button
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
@@ -111,8 +116,7 @@ class _CartState extends State<Cart> {
                                   _cartBloc.add(
                                     CheckOutButtonClicked(amount: state.amount),
                                   );
-                                  // Example: Navigate to a checkout screen
-                                  // Navigator.push(context, MaterialPageRoute(builder: (context) => CheckoutScreen()));
+                    
                                 },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(

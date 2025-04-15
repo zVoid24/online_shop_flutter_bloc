@@ -1,3 +1,4 @@
+// lib/features/home/bloc/home_bloc.dart
 import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +48,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         'Initial fetch: ${_products.length} products, total: $_totalProducts, hasMore: $_hasMore, lastDocId: $_lastDocId',
       );
 
-      emit(HomeSuccess(products: List.from(_products), hasMore: _hasMore));
+      emit(
+        HomeSuccess(
+          products: List.from(_products),
+          hasMore: _hasMore,
+          selectedCategory: _currentCategory,
+        ),
+      );
     } catch (e) {
       emit(HomeFailure(error: 'Failed to load products: $e'));
     }
@@ -57,7 +64,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     HomeLoadMoreEvent event,
     Emitter<HomeState> emit,
   ) async {
-    emit(HomeLoadingMore(products: List.from(_products)));
+    emit(
+      HomeLoadingMore(
+        products: List.from(_products),
+        selectedCategory: _currentCategory,
+      ),
+    );
     try {
       List<Product> moreProducts;
       if (_currentCategory != null) {
@@ -77,15 +89,24 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         _products.addAll(moreProducts);
         _lastDocId = moreProducts.last.id;
       }
-      _totalProducts = _currentCategory != null
-          ? await productDatabase.getProductCountByCategory(_currentCategory!)
-          : await productDatabase.getProductCount();
+      _totalProducts =
+          _currentCategory != null
+              ? await productDatabase.getProductCountByCategory(
+                _currentCategory!,
+              )
+              : await productDatabase.getProductCount();
       _hasMore = _products.length < _totalProducts;
       debugPrint(
         'Load more: ${moreProducts.length} products added, total: ${_products.length}, category: ${_currentCategory ?? "all"}, totalProducts: $_totalProducts, hasMore: $_hasMore, lastDocId: $_lastDocId',
       );
 
-      emit(HomeSuccess(products: List.from(_products), hasMore: _hasMore));
+      emit(
+        HomeSuccess(
+          products: List.from(_products),
+          hasMore: _hasMore,
+          selectedCategory: _currentCategory,
+        ),
+      );
     } catch (e) {
       emit(HomeFailure(error: 'Failed to load more products: $e'));
     }
@@ -127,7 +148,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       _totalProducts = await productDatabase.getProductCount();
       _hasMore = _products.length < _totalProducts;
 
-      emit(HomeSuccess(products: List.from(_products), hasMore: _hasMore));
+      emit(
+        HomeSuccess(
+          products: List.from(_products),
+          hasMore: _hasMore,
+          selectedCategory: _currentCategory,
+        ),
+      );
     } catch (e) {
       emit(HomeFailure(error: 'Failed to refresh products: $e'));
     }
@@ -156,22 +183,33 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         limit: 10,
       );
       _products.addAll(categoryProducts);
-      _lastDocId = categoryProducts.isNotEmpty ? categoryProducts.last.id : null;
-      _totalProducts =
-          await productDatabase.getProductCountByCategory(event.categoryName);
+      _lastDocId =
+          categoryProducts.isNotEmpty ? categoryProducts.last.id : null;
+      _totalProducts = await productDatabase.getProductCountByCategory(
+        event.categoryName,
+      );
       _hasMore = _products.length < _totalProducts;
       debugPrint(
         'Category fetch: ${event.categoryName}, loaded: ${_products.length}, total: $_totalProducts, hasMore: $_hasMore, lastDocId: $_lastDocId',
       );
 
       if (categoryProducts.isEmpty) {
-        emit(HomeSuccess(
-          products: [],
-          hasMore: false,
-          message: 'No products found for ${event.categoryName}',
-        ));
+        emit(
+          HomeSuccess(
+            products: [],
+            hasMore: false,
+            message: 'No products found for ${event.categoryName}',
+            selectedCategory: _currentCategory,
+          ),
+        );
       } else {
-        emit(HomeSuccess(products: List.from(_products), hasMore: _hasMore));
+        emit(
+          HomeSuccess(
+            products: List.from(_products),
+            hasMore: _hasMore,
+            selectedCategory: _currentCategory,
+          ),
+        );
       }
     } catch (e) {
       emit(HomeFailure(error: 'Failed to load category products: $e'));

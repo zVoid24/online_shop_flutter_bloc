@@ -1,11 +1,13 @@
+// lib/bloc/cart_bloc.dart
 import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:meta/meta.dart';
 import 'package:online_shop/database/database_calls.dart';
-import 'package:online_shop/database/sslcommerz.dart';
+import 'package:online_shop/services/sslcommerz.dart';
 import 'package:online_shop/database/user_database.dart';
 import 'package:online_shop/models/product.dart';
+import 'package:online_shop/services/pdf_service.dart';
 
 part 'cart_event.dart';
 part 'cart_state.dart';
@@ -55,7 +57,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     final db = UserDatabase(uid: currentUser.uid);
     try {
       await db.removeFromCart(event.productId);
-      emit(CartProductRemovedState()); // Action state for listener
+      emit(CartProductRemovedState());
       final updatedProducts = await db.getCartItems();
       final updatedAmount = await db.fetchCheckOutAmount();
       if (updatedProducts.isNotEmpty) {
@@ -117,10 +119,11 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     }
   }
 
-  FutureOr<void> _onCheckOutButtonClicked(
+  Future<void> _onCheckOutButtonClicked(
     CheckOutButtonClicked event,
     Emitter<CartState> emit,
   ) async {
+    emit(CartLoading());
     final SSLCommerzService paymentService = SSLCommerzService(
       amount: event.amount,
     );
@@ -130,15 +133,30 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       return;
     }
     final UserDatabase db = UserDatabase(uid: uid);
-    final product = await db.getCartItems();
-    bool success = await paymentService.initiatePayment();
-    if (success) {
-      await db.confirmOrder(product, event.amount);
-      await db.deleteCartSubcollection();
-      //emit(CartInitial());
-      emit(CheckOutSuccess());
-    } else {
-      emit(CheckOutFailure());
+    try {
+      final products = await db.getCartItems();
+      bool success = await paymentService.initiatePayment();
+      if (success) {
+        final orderId = await db.confirmOrder(products, event.amount);
+        await db.deleteCartSubcollection();
+
+        final filePath = await generateOrderPDFFromFirestore(orderId);
+
+        final updatedProducts = await db.getCartItems();
+        final updatedAmount = await db.fetchCheckOutAmount();
+
+        emit(CheckOutSuccess(orderId: orderId, filePath: filePath));
+
+        if (updatedProducts.isEmpty) {
+          emit(EmptyCartState());
+        } else {
+          emit(CartSuccess(products: updatedProducts, amount: updatedAmount));
+        }
+      } else {
+        emit(CheckOutFailure());
+      }
+    } catch (e) {
+      emit(CartFailure(error: 'Checkout failed: $e'));
     }
   }
 }

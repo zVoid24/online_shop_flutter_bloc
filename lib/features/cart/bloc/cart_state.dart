@@ -12,7 +12,7 @@ class CartLoading extends CartState {}
 class CartSuccess extends CartState {
   final List<Product> products;
   final double amount;
-  CartSuccess({required this.products,required this.amount});
+  CartSuccess({required this.products, required this.amount});
 }
 
 class CartFailure extends CartState {
@@ -29,6 +29,11 @@ class OneProductDecreasedState extends CartActionState {
   OneProductDecreasedState({required this.name});
 }
 
-class CheckOutSuccess extends CartActionState{}
+class CheckOutSuccess extends CartActionState {
+  final String orderId;
+  final String filePath; 
 
-class CheckOutFailure extends CartActionState{}
+  CheckOutSuccess({required this.orderId, required this.filePath});
+}
+
+class CheckOutFailure extends CartActionState {}

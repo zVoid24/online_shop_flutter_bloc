@@ -10,3 +10,5 @@ class HomeScreenNavigateToHelpEvent extends HomeScreenEvent {}
 class HomeScreenLogoutEvent extends HomeScreenEvent {}
 
 class HomeScreenInitialEvent extends HomeScreenEvent {}
+
+class HomeScreenNavigateToOrderHistoryEvent extends HomeScreenEvent{}

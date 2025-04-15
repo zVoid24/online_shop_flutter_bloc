@@ -13,6 +13,9 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
     on<HomeScreenNavigateToHelpEvent>(_onHomeScreenNavigateToHelpEvent);
     on<HomeScreenLogoutEvent>(_onHomeScreenLogoutEvent);
     on<HomeScreenInitialEvent>(_onHomeScreenInitialEvent);
+    on<HomeScreenNavigateToOrderHistoryEvent>(
+      _onHomeScreenNavigateToOrderHistoryEvent,
+    );
   }
 
   FutureOr<void> _onHomeScreenLogoutEvent(
@@ -41,5 +44,12 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
     Emitter<HomeScreenState> emit,
   ) {
     emit(HomeScreenLoadedState());
+  }
+
+  FutureOr<void> _onHomeScreenNavigateToOrderHistoryEvent(
+    HomeScreenNavigateToOrderHistoryEvent event,
+    Emitter<HomeScreenState> emit,
+  ) {
+    emit(HomeScreenNavigateToOrderHistoryState());
   }
 }

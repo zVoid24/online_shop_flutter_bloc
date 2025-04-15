@@ -1,10 +1,39 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 class Database {
   final _firebaseAuth = FirebaseAuth.instance;
 
-  /// Signs in a user with email and password.
-  /// Returns the [User] object on success, or throws a formatted exception on failure.
+  Future<void> updateMail({required String email,required String password}) async {
+    try {
+      final user = _firebaseAuth.currentUser;
+      if(user!.providerData.any((info) => info.providerId == 'password')){
+        final credential = EmailAuthProvider.credential(
+          email: user.email ?? '',
+          password: password,
+        );
+        await user.reauthenticateWithCredential(credential);
+        debugPrint('Re-authenticated user: ${user.email}');
+      }
+      if (user != null) {
+        await user.verifyBeforeUpdateEmail(email);
+      } else {
+        throw Exception('No user is currently signed in.');
+      }
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  bool isPasswordProvider() {
+    return _firebaseAuth.currentUser?.providerData.any((info) => info.providerId == 'password') ?? false;
+  }
+
+  String? get email {
+    // Replace with the actual logic to retrieve the email
+    return FirebaseAuth.instance.currentUser?.email;
+  }
+
   Future<User?> signInWithEmail({
     required String email,
     required String password,
@@ -20,8 +49,6 @@ class Database {
     }
   }
 
-  /// Signs up a user with email and password.
-  /// Returns the [User] object on success, or throws a formatted exception on failure.
   Future<User?> signUpWithEmailAndPassword({
     required String email,
     required String password,
@@ -44,7 +71,6 @@ class Database {
     return null;
   }
 
-  /// Maps FirebaseAuthException to user-friendly error messages.
   String _mapFirebaseException(FirebaseAuthException e) {
     switch (e.code) {
       case 'invalid-email':

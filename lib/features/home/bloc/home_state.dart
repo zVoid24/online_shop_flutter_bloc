@@ -1,5 +1,4 @@
 part of 'home_bloc.dart';
-
 @immutable
 abstract class HomeState {}
 
@@ -11,14 +10,24 @@ class HomeLoading extends HomeState {}
 
 class HomeLoadingMore extends HomeState {
   final List<Product> products;
-  HomeLoadingMore({required this.products});
+  final String? selectedCategory; // New field
+  HomeLoadingMore({
+    required this.products,
+    this.selectedCategory,
+  });
 }
 
 class HomeSuccess extends HomeState {
   final List<Product> products;
   final bool hasMore;
   final String? message;
-  HomeSuccess({required this.products, required this.hasMore, this.message});
+  final String? selectedCategory; // New field
+  HomeSuccess({
+    required this.products,
+    required this.hasMore,
+    this.message,
+    this.selectedCategory,
+  });
 }
 
 class HomeFailure extends HomeState {

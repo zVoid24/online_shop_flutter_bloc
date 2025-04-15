@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:online_shop/models/product.dart';
 import 'package:online_shop/models/user.dart';
+import 'package:online_shop/models/order.dart' as shop;
 import 'product_database.dart';
 
 class UserDatabase {
@@ -37,6 +38,16 @@ class UserDatabase {
     }
   }
 
+  Future<void> syncEmailAfterVerification(String newEmail) async {
+    try {
+      await userCollection.doc(uid).update({'email': newEmail});
+      print('Firestore email updated to $newEmail for UID: $uid');
+    } catch (e) {
+      print('Error syncing Firestore email: $e');
+      throw Exception('Failed to sync email: $e');
+    }
+  }
+
   // Get a stream of messages for a conversation
   Stream<List<Map<String, dynamic>>> getMessagesStream() {
     print('Fetching messages for UID: $uid');
@@ -67,7 +78,6 @@ class UserDatabase {
         });
   }
 
-  // Get a stream of all conversations (for admin panel)
   Stream<List<Map<String, dynamic>>> getAllConversationsStream() {
     return conversationsCollection
         .orderBy('lastMessageTime', descending: true)
@@ -115,7 +125,7 @@ class UserDatabase {
     }
   }
 
-  Future<void> addToCart({required String productId}) async {
+  Future<void> addToCart({required String productId,int quantity=1}) async {
     try {
       final cartItemRef = userCollection
           .doc(uid)
@@ -124,20 +134,19 @@ class UserDatabase {
       final cartItemSnapshot = await cartItemRef.get();
 
       if (cartItemSnapshot.exists) {
-        await cartItemRef.update({'quantity': FieldValue.increment(1)});
+        await cartItemRef.update({'quantity': FieldValue.increment(quantity)});
       } else {
-        await cartItemRef.set({'productId': productId, 'quantity': 1});
+        await cartItemRef.set({'productId': productId, 'quantity': quantity});
       }
     } catch (e) {
       throw Exception('Failed to add item to cart: $e');
     }
   }
 
-  Future<void> confirmOrder(List<Product> products, double amount) async {
+  Future<String> confirmOrder(List<Product> products, double amount) async {
     try {
-      final orderRef = userCollection.doc(uid).collection('order').doc();
+      final orderRef = userCollection.doc(uid).collection('orders').doc();
 
-      // Prepare the order data
       final List<Map<String, dynamic>> orderItems =
           products.map((product) {
             return {
@@ -148,7 +157,6 @@ class UserDatabase {
             };
           }).toList();
 
-      // Write the order to Firestore in a single set call
       await orderRef.set({
         'orderId': orderRef.id,
         'items': orderItems,
@@ -157,22 +165,56 @@ class UserDatabase {
         'status': 'completed',
       });
 
-      // Delete the cart subcollection after confirming the order
       await deleteCartSubcollection();
+      return orderRef.id;
     } catch (e) {
       throw Exception('Failed to confirm order: $e');
     }
   }
 
+  Future<List<shop.Order>> fetchOrder() async {
+    try {
+      final orderSnapshot = await userCollection.doc(uid).collection('orders').orderBy('date', descending: true).get();
+      final orders = <shop.Order>[];
+      for (var doc in orderSnapshot.docs) {
+        final data = doc.data() as Map<String, dynamic>;
+        final itemsData = List<Map<String, dynamic>>.from(data['items'] ?? []);
+        final items = itemsData.map((item) {
+          return Product(
+            id: item['productId'] as String,
+            name: item['name'] as String,
+            description: '', 
+            price: (item['price'] as num).toDouble(),
+            imageUrl: '', 
+            quantity: item['quantity'] as int,
+            category: '', 
+          );
+        }).toList();
+
+        orders.add(shop.Order(
+          orderId: data['orderId'] as String,
+          date: data['date'] as Timestamp,
+          items: items,
+          status: data['status'] as String,
+          amount: (data['total'] as num).toDouble(),
+        ));
+      }
+
+      print('Fetched ${orders.length} orders for UID: $uid');
+      return orders;
+    } catch (e) {
+      print('Error fetching orders: $e');
+      throw Exception('Failed to fetch orders: $e');
+    }
+  }
+
   Future<void> deleteCartSubcollection() async {
     try {
-      // Reference to the cart subcollection
+    
       final cartRef = userCollection.doc(uid).collection('cart');
 
-      // Get all documents in the cart subcollection
       final snapshot = await cartRef.get();
 
-      // Delete each document in the cart
       for (var doc in snapshot.docs) {
         await doc.reference.delete();
       }

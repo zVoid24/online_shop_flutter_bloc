@@ -1,3 +1,4 @@
+// lib/features/profile/bloc/profile_bloc.dart
 import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,10 +12,17 @@ part 'profile_event.dart';
 part 'profile_state.dart';
 
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
-  ProfileBloc() : super(ProfileInitial()) {
+  final UserDatabase userDatabase;
+
+  ProfileBloc({required this.userDatabase}) : super(ProfileInitial()) {
     on<ProfileInitialEvent>(_onProfileInitialEvent);
     on<ChangePasswordEvent>(_onChangePasswordEvent);
     on<ChangePasswordButtonPressedEvent>(_onChangePasswordButtonPressedEvent);
+    on<ProfileChangeEmailEvent>(_onProfileChangeEmailEvent);
+    on<ProfileChangeEmailButtonPressedEvent>(
+      _onProfileChangeEmailButtonPressedEvent,
+    );
+    on<ProfileSyncEmailEvent>(_onProfileSyncEmailEvent);
   }
 
   FutureOr<void> _onProfileInitialEvent(
@@ -31,17 +39,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         return;
       }
 
-      debugPrint('No cached data, fetching current user');
-      final User? user = await Database().getCurrentUser();
-      if (user == null) {
-        debugPrint('No user is signed in');
-        emit(ProfileFailure(error: 'Please sign in to view your profile'));
-        return;
-      }
-
-      final String uid = user.uid;
-      debugPrint('Fetching user data for UID: $uid');
-      final userData = await UserDatabase(uid: uid).getUserData();
+      debugPrint('Fetching user data for UID: ${userDatabase.uid}');
+      final userData = await userDatabase.getUserData();
       if (userData != null) {
         debugPrint('User data fetched: ${userData.email}');
         await SharedPrefs.saveUserData(userData);
@@ -84,5 +83,54 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ) {
     debugPrint('Change password button pressed');
     emit(ProfilePasswordChangeButtonPressed());
+  }
+
+  FutureOr<void> _onProfileChangeEmailEvent(
+    ProfileChangeEmailEvent event,
+    Emitter<ProfileState> emit,
+  ) async {
+    emit(ProfileLoading());
+    try {
+      final Database user = Database();
+      if (user == null) {
+        throw Exception('No user is signed in');
+      }
+
+      await user.updateMail(email: event.email, password: event.password);
+      debugPrint('Verification email sent to ${event.email}');
+      add(ProfileSyncEmailEvent(newEmail: event.email));
+      user.signOut();
+    } catch (e) {
+      debugPrint('Error in _onProfileChangeEmailEvent: $e');
+      emit(ProfileUpdateFailure(error: e.toString()));
+    }
+  }
+
+  FutureOr<void> _onProfileChangeEmailButtonPressedEvent(
+    ProfileChangeEmailButtonPressedEvent event,
+    Emitter<ProfileState> emit,
+  ) {
+    debugPrint('Change email button pressed');
+    emit(ProfileChangeEmailButtonPressedState());
+  }
+
+  FutureOr<void> _onProfileSyncEmailEvent(
+    ProfileSyncEmailEvent event,
+    Emitter<ProfileState> emit,
+  ) async {
+    try {
+      await userDatabase.syncEmailAfterVerification(event.newEmail);
+      debugPrint('Firestore synced with ${event.newEmail}');
+      final userData = await userDatabase.getUserData();
+      if (userData != null) {
+        await SharedPrefs.saveUserData(userData);
+        emit(ProfileSuccess(user: userData));
+      } else {
+        emit(ProfileFailure(error: 'User data not found after sync'));
+      }
+    } catch (e) {
+      debugPrint('Error in _onProfileSyncEmailEvent: $e');
+      emit(ProfileUpdateFailure(error: 'Failed to sync email: $e'));
+    }
   }
 }

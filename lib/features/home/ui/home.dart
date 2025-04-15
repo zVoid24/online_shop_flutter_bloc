@@ -1,3 +1,4 @@
+// lib/features/home/ui/home.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:online_shop/features/home/bloc/home_bloc.dart';
@@ -112,6 +113,10 @@ class _HomeState extends State<Home> {
                           scrollDirection: Axis.horizontal,
                           itemCount: categories.length,
                           itemBuilder: (context, index) {
+                            final category = categories[index];
+                            final isSelected =
+                                successState.selectedCategory ==
+                                category['title'];
                             return Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 5,
@@ -120,68 +125,84 @@ class _HomeState extends State<Home> {
                                 onTap: () {
                                   _homeBloc.add(
                                     HomeCategoryTapEvent(
-                                      categoryName: categories[index]['title']!,
+                                      categoryName: category['title']!,
                                     ),
                                   );
                                 },
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 90,
-                                      height: 90,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                      child: Stack(
-                                        children: [
-                                          ClipRRect(
-                                            borderRadius: BorderRadius.circular(
-                                              15,
-                                            ),
-                                            child: Image.asset(
-                                              categories[index]['image']!,
-                                              fit: BoxFit.cover,
-                                              width: 90,
-                                              height: 90,
-                                            ),
-                                          ),
-                                          Positioned(
-                                            bottom: 5,
-                                            left: 5,
-                                            right: 5,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.black.withOpacity(
-                                                  0.5,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                              ),
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    vertical: 2,
-                                                    horizontal: 4,
-                                                  ),
-
-                                              child: Text(
-                                                categories[index]['title']!,
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 12,
-                                                  height: 1.2,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                                textAlign: TextAlign.center,
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                child: Container(
+                                  width: 90,
+                                  height: 90,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color:
+                                          isSelected
+                                              ? Color(0xFF328E6E)
+                                              : Colors.grey,
+                                      width: isSelected ? 3 : 0,
                                     ),
-                                    SizedBox(width: 8),
-                                  ],
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Image.asset(
+                                          category['image']!,
+                                          fit: BoxFit.cover,
+                                          width: 90,
+                                          height: 90,
+                                        ),
+                                      ),
+                                      if (isSelected)
+                                        Positioned(
+                                          top: 5,
+                                          right: 5,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(2),
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xFF328E6E),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.check,
+                                              color: Colors.white,
+                                              size: 16,
+                                            ),
+                                          ),
+                                        ),
+                                      Positioned(
+                                        bottom: 5,
+                                        left: 5,
+                                        right: 5,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withOpacity(
+                                              0.5,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 2,
+                                            horizontal: 4,
+                                          ),
+                                          child: Text(
+                                            category['title']!,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                              height: 1.2,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             );
@@ -267,6 +288,10 @@ class _HomeState extends State<Home> {
                           scrollDirection: Axis.horizontal,
                           itemCount: categories.length,
                           itemBuilder: (context, index) {
+                            final category = categories[index];
+                            final isSelected =
+                                (state as HomeLoadingMore).selectedCategory ==
+                                category['title'];
                             return Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 5,
@@ -275,68 +300,84 @@ class _HomeState extends State<Home> {
                                 onTap: () {
                                   _homeBloc.add(
                                     HomeCategoryTapEvent(
-                                      categoryName: categories[index]['title']!,
+                                      categoryName: category['title']!,
                                     ),
                                   );
                                 },
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 90,
-                                      height: 90,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                      child: Stack(
-                                        children: [
-                                          ClipRRect(
-                                            borderRadius: BorderRadius.circular(
-                                              15,
-                                            ),
-                                            child: Image.asset(
-                                              categories[index]['image']!,
-                                              fit: BoxFit.cover,
-                                              width: 90,
-                                              height: 90,
-                                            ),
-                                          ),
-                                          Positioned(
-                                            bottom: 5,
-                                            left: 5,
-                                            right: 5,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.black.withOpacity(
-                                                  0.5,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                              ),
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    vertical: 2,
-                                                    horizontal: 4,
-                                                  ),
-
-                                              child: Text(
-                                                categories[index]['title']!,
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 12,
-                                                  height: 1.2,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                                textAlign: TextAlign.center,
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                                child: Container(
+                                  width: 90,
+                                  height: 90,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color:
+                                          isSelected
+                                              ? Color(0xFF328E6E)
+                                              : Colors.grey,
+                                      width: isSelected ? 3 : 1,
                                     ),
-                                    SizedBox(width: 8),
-                                  ],
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Image.asset(
+                                          category['image']!,
+                                          fit: BoxFit.cover,
+                                          width: 90,
+                                          height: 90,
+                                        ),
+                                      ),
+                                      if (isSelected)
+                                        Positioned(
+                                          top: 5,
+                                          right: 5,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(2),
+                                            decoration: const BoxDecoration(
+                                              color: Color(0xFF328E6E),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.check,
+                                              color: Colors.white,
+                                              size: 16,
+                                            ),
+                                          ),
+                                        ),
+                                      Positioned(
+                                        bottom: 5,
+                                        left: 5,
+                                        right: 5,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withOpacity(
+                                              0.5,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 2,
+                                            horizontal: 4,
+                                          ),
+                                          child: Text(
+                                            category['title']!,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                              height: 1.2,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             );

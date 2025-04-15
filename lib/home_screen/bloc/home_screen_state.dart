@@ -12,3 +12,5 @@ class HomeScreenNavigateToSettingsState extends HomeScreenActionState {}
 class HomeScreenNavigateToHelpState extends HomeScreenActionState {}
 
 class HomeScreenLoadedState extends HomeScreenState {}
+
+class HomeScreenNavigateToOrderHistoryState extends HomeScreenActionState{}

@@ -1,3 +1,4 @@
+// lib/features/home_screen/ui/home_screen.dart
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +8,7 @@ import 'package:online_shop/database/user_database.dart';
 import 'package:online_shop/features/cart/ui/cart.dart';
 import 'package:online_shop/features/help/ui/help.dart';
 import 'package:online_shop/features/home/ui/home.dart';
+import 'package:online_shop/features/order_history/ui/order_history.dart';
 import 'package:online_shop/features/profile/bloc/profile_bloc.dart';
 import 'package:online_shop/features/profile/ui/profile.dart';
 import 'package:online_shop/home_screen/bloc/home_screen_bloc.dart';
@@ -15,7 +17,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:online_shop/features/search/ui/search.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final int selectedIndex;
+  const HomeScreen({super.key, this.selectedIndex = 0});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -25,14 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final ProductDatabase _productDatabase = ProductDatabase();
   int _selectedIndex = 0;
 
-  // Provide ProfileBloc for the Profile widget
-  late final List<Widget> _pages = [
-    const Home(),
-    Search(productDatabase: _productDatabase),
-    const Cart(),
-    BlocProvider(create: (context) => ProfileBloc(), child: const Profile()),
-  ];
-
+  late final List<Widget> _pages;
   static const List<String> _titles = ['Home', 'Search', 'Cart', 'Profile'];
 
   final HomeScreenBloc _homeScreenBloc = HomeScreenBloc();
@@ -44,14 +40,31 @@ class _HomeScreenState extends State<HomeScreen> {
 
   static Future<UserData?> _initializeUserDatabase() async {
     final User? user = await Database().getCurrentUser();
-    final String uid = user?.uid ?? '';
-    return UserDatabase(uid: uid).getUserData();
+    if (user == null) {
+      return null;
+    }
+    return UserDatabase(uid: user.uid).getUserData();
   }
 
   @override
   void initState() {
     super.initState();
     _homeScreenBloc.add(HomeScreenInitialEvent());
+    // Initialize pages with user check
+    final user = FirebaseAuth.instance.currentUser;
+    _pages = [
+      const Home(),
+      Search(productDatabase: _productDatabase),
+      const Cart(),
+      user != null
+          ? BlocProvider(
+            create:
+                (context) =>
+                    ProfileBloc(userDatabase: UserDatabase(uid: user.uid)),
+            child: const Profile(),
+          )
+          : const Center(child: Text('Please sign in to view profile')),
+    ];
   }
 
   void _onItemTapped(int index) {
@@ -68,13 +81,15 @@ class _HomeScreenState extends State<HomeScreen> {
       listenWhen: (previous, current) => current is HomeScreenActionState,
       buildWhen: (previous, current) => current is HomeScreenLoadedState,
       listener: (context, state) {
-        // if (state is HomeScreenLogoutState) {
-        //   Navigator.pushReplacementNamed(context, '/wrapper');
-        // }
         if (state is HomeScreenNavigateToHelpState) {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => Help()),
+          );
+        } else if (state is HomeScreenNavigateToOrderHistoryState) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => OrderHistory()),
           );
         }
       },
@@ -106,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           !snapshot.hasData ||
                           snapshot.data == null) {
                         return const Text(
-                          'Error',
+                          'Please sign in',
                           style: TextStyle(color: Colors.white, fontSize: 24),
                         );
                       } else {
@@ -117,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             CircleAvatar(
                               radius: 30,
                               backgroundImage: CachedNetworkImageProvider(
-                                'https://robohash.org/${snapshot.data!.email}.png?set=set4',
+                                'https://robohash.org/${snapshot.data!.email}.png?set=set1',
                               ),
                             ),
                             Text(
@@ -148,10 +163,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.settings),
-                  title: const Text('Settings'),
+                  leading: const Icon(Icons.history),
+                  title: const Text('Order History'),
                   onTap: () {
-                    _homeScreenBloc.add(HomeScreenNavigateToSettingsEvent());
+                    _homeScreenBloc.add(
+                      HomeScreenNavigateToOrderHistoryEvent(),
+                    );
                   },
                 ),
                 ListTile(

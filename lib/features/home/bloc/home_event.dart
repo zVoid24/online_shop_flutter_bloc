@@ -1,5 +1,6 @@
 part of 'home_bloc.dart';
 
+
 @immutable
 abstract class HomeEvent {}
 
@@ -23,3 +24,4 @@ class HomeCategoryTapEvent extends HomeEvent {
   final String categoryName;
   HomeCategoryTapEvent({required this.categoryName});
 }
+

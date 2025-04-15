@@ -47,6 +47,10 @@ dependencies:
   cached_network_image: ^3.4.1
   shared_preferences: ^2.5.3
   flutter_sslcommerz: ^2.4.4
+  pdf: 
+  printing: 
+  path_provider: 
+  intl: ^0.20.2
   
 
 
