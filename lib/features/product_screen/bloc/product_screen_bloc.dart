@@ -16,6 +16,9 @@ class ProductScreenBloc extends Bloc<ProductScreenEvent, ProductScreenState> {
     on<ProductScreenAddToCartButtonPressed>(
       _onProductScreenAddToCartButtonPressed,
     );
+    on<ProductScreenNavigateToCart>(
+      _onProductScreenNavigateToCartButtonPressed,
+    );
   }
 
   FutureOr<void> _onProductScreenInitialEvent(
@@ -51,5 +54,12 @@ class ProductScreenBloc extends Bloc<ProductScreenEvent, ProductScreenState> {
     } catch (e) {
       emit(ProductScreenAddToCartFailureState(error: e.toString()));
     }
+  }
+
+  FutureOr<void> _onProductScreenNavigateToCartButtonPressed(
+    event,
+    Emitter<ProductScreenState> emit,
+  ) {
+    emit(ProductScreenNavigateToCartState());
   }
 }

@@ -17,8 +17,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:online_shop/features/search/ui/search.dart';
 
 class HomeScreen extends StatefulWidget {
-  final int selectedIndex;
-  const HomeScreen({super.key, this.selectedIndex = 0});
+  int selectedIndex;
+  HomeScreen({super.key, this.selectedIndex = 0});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -27,8 +27,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ProductDatabase _productDatabase = ProductDatabase();
   int _selectedIndex = 0;
-
-  late final List<Widget> _pages;
   static const List<String> _titles = ['Home', 'Search', 'Cart', 'Profile'];
 
   final HomeScreenBloc _homeScreenBloc = HomeScreenBloc();
@@ -60,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index;
+      widget.selectedIndex = index;
       _homeScreenBloc.add(HomeScreenInitialEvent());
     });
   }
@@ -88,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return Scaffold(
           appBar: AppBar(
             title: Text(
-              _titles[_selectedIndex],
+              _titles[widget.selectedIndex],
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
             ),
             foregroundColor: Colors.white,
@@ -139,6 +137,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color: Colors.white,
                                 fontSize: 15,
                               ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         );
@@ -173,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           body: () {
-            switch (_selectedIndex) {
+            switch (widget.selectedIndex) {
               case 0:
                 return const Home();
               case 1:
@@ -206,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 label: 'Profile',
               ),
             ],
-            currentIndex: _selectedIndex,
+            currentIndex: widget.selectedIndex,
             selectedItemColor: const Color(0xFF328E6E),
             unselectedItemColor: Colors.grey,
             onTap: _onItemTapped,

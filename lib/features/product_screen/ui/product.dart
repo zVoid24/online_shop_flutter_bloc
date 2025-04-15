@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:online_shop/features/product_screen/bloc/product_screen_bloc.dart';
+import 'package:online_shop/home_screen/ui/home_screen.dart';
 import 'package:online_shop/models/product.dart';
 
 class ProductScreen extends StatefulWidget {
@@ -43,6 +44,13 @@ class _ProductScreenState extends State<ProductScreen> {
               ),
             );
             _productScreenBloc.add(ProductScreenInitialEvent());
+          } else if (state is ProductScreenNavigateToCartState) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomeScreen(selectedIndex: 2),
+              ),
+            );
           }
         },
         builder: (context, state) {
@@ -66,8 +74,7 @@ class _ProductScreenState extends State<ProductScreen> {
                     IconButton(
                       icon: Icon(color: Colors.grey, Icons.shopping_cart),
                       onPressed: () {
-                        // Define your action here
-                        print('Cart button pressed');
+                        _productScreenBloc.add(ProductScreenNavigateToCart());
                       },
                     ),
                   ],
