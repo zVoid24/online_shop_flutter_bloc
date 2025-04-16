@@ -58,7 +58,7 @@ class ProductDatabase {
                   data['Description'] as String? ?? 'No description available',
               price: (data['Price'] as num?)?.toDouble() ?? 0.0,
               imageUrl: data['Image'] as String? ?? '',
-              category: data['Category'] as String ?? 'No Category Availabe',
+              category: data['Category'] as String,
             );
           }).toList();
 
@@ -109,7 +109,7 @@ class ProductDatabase {
                   data['Description'] as String? ?? 'No description available',
               price: (data['Price'] as num?)?.toDouble() ?? 0.0,
               imageUrl: data['Image'] as String? ?? '',
-              category: data['Category'] as String ?? 'No Category Availabe',
+              category: data['Category'] as String,
             );
           }).toList();
       print(
@@ -163,7 +163,7 @@ class ProductDatabase {
                   data['Description'] as String? ?? 'No description available',
               price: (data['Price'] as num?)?.toDouble() ?? 0.0,
               imageUrl: data['Image'] as String? ?? '',
-              category: data['Category'] as String ?? 'No Category Availabe',
+              category: data['Category'] as String,
             );
           }).toList();
       print(
@@ -189,7 +189,7 @@ class ProductDatabase {
                 data['Description'] as String? ?? 'No description available',
             price: (data['Price'] as num?)?.toDouble() ?? 0.0,
             imageUrl: data['Image'] as String? ?? '',
-            category: data['Category'] as String ?? 'No Category Availabe',
+            category: data['Category'] as String,
           ),
         ];
       } else {
