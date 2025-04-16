@@ -11,6 +11,7 @@ void main() async {
         primaryColor: Color(0xFF328E6E),
         primaryColorDark: Color(0xFF328E6E),
       ),
+      //showPerformanceOverlay: true,
       debugShowCheckedModeBanner: false,
       home: const Wrapper(),
     ),
