@@ -25,7 +25,6 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     SignUpButtonClicked event,
     Emitter<SignUpState> emit,
   ) async {
-    // Validation checks
     if (event.name.trim().isEmpty) {
       emit(
         SignUpFailure(

@@ -91,20 +91,19 @@ class _CartState extends State<Cart> {
                       ),
                     ),
                   ),
-                  // Add Checkout Button
+                  
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 15,
                       vertical: 10,
                     ),
                     child: SizedBox(
-                      width: double.infinity, // Full-width button
+                      width: double.infinity, 
                       child: ElevatedButton(
                         onPressed:
                             products.isEmpty
-                                ? null // Disable button if cart is empty
+                                ? null 
                                 : () async {
-                                  // Add checkout logic here
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       content: Text(
