@@ -17,7 +17,7 @@
 - 📦 Inventory Management via Firestore
 - 🧠 BLoC Architecture for scalable state management
 - 🔔 In-App Notifications & Promotions
-- 📱 Responsive UI for Android & iOS
+- 📱 Responsive UI for Android
 
 ---
 
@@ -27,7 +27,6 @@
 - **Dart** – Programming Language
 - **Firebase** – Firestore, Auth, Cloud Functions, and Storage
 - **BLoC** – Clean architecture for state management
-- **Provider** – Dependency Injection
 - **Shared Preferences** – Persistent local storage
 
 ---
