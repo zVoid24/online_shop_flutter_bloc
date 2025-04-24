@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:online_shop/features/login/bloc/login_bloc.dart';
 import 'package:online_shop/features/sign_up/ui/sign_up.dart';
+import 'package:online_shop/features/wrapper/ui/wrapper.dart';
+
+class AppColors {
+  static const primary = Color(0xFF328E6E);
+}
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -41,28 +46,32 @@ class _LoginState extends State<Login> {
             fontSize: 25,
           ),
         ),
-        backgroundColor: Color(0xFF328E6E),
+        backgroundColor: AppColors.primary,
       ),
-      //backgroundColor: const Color(0xFFEAECCC),
       body: BlocConsumer<LoginBloc, LoginState>(
         listenWhen: (previous, current) => current is LoginActionState,
-        buildWhen:
-            (previous, current) =>
-                current is! LoginActionState || current is LoginFailure,
+        buildWhen: (previous, current) =>
+            current is LoginInitial || current is LoginFailure || current is LoginLoading,
         bloc: loginBloc,
         listener: (context, state) {
           if (state is LoginFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.error),
-                duration: Duration(seconds: 1),
+                duration: const Duration(seconds: 2),
                 backgroundColor: Colors.red,
               ),
             );
           } else if (state is LoginNavigateToSignUp) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => SignUp()),
+              MaterialPageRoute(builder: (context) => const SignUp()),
+            );
+          } else if (state is LoginSuccess) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const Wrapper()), // Replace with your Wrapper
+              (route) => false,
             );
           }
         },
@@ -93,29 +102,40 @@ class _LoginState extends State<Login> {
                       decoration: InputDecoration(
                         labelText: 'Password',
                         hintText: 'Password',
-                        hintStyle: TextStyle(color: Colors.grey),
+                        hintStyle: const TextStyle(color: Colors.grey),
                         suffixIcon: IconButton(
                           onPressed: () {
                             loginBloc.add(PasswordObscured());
                           },
-                          icon:
-                              state.isPasswordObscured
-                                  ? Icon(Icons.visibility)
-                                  : Icon(Icons.visibility_off),
+                          icon: state.isPasswordObscured
+                              ? const Icon(Icons.visibility)
+                              : const Icon(Icons.visibility_off),
                         ),
                       ),
                       obscureText: state.isPasswordObscured,
                     ),
                     const SizedBox(height: 20),
                     customButton(context, 'Sign In', () {
+                      final email = _emailController.text.trim();
+                      final password = _passwordController.text.trim();
+                      if (email.isEmpty || password.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Please enter email and password'),
+                            backgroundColor: Colors.red,
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        return;
+                      }
                       loginBloc.add(
                         LoginButtonPressed(
-                          email: _emailController.text,
-                          password: _passwordController.text,
+                          email: email,
+                          password: password,
                         ),
                       );
                     }),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     customButton(
                       context,
                       'Sign Up',
@@ -125,13 +145,13 @@ class _LoginState extends State<Login> {
                 ),
               );
             case LoginLoading:
-              return Scaffold(
+              return const Scaffold(
                 body: Center(
                   child: CircularProgressIndicator(color: Colors.black),
                 ),
               );
             default:
-              return const SizedBox.shrink(); // Default case to handle other states
+              return const SizedBox.shrink();
           }
         },
       ),
@@ -140,15 +160,12 @@ class _LoginState extends State<Login> {
 
   Widget customButton(BuildContext context, String text, Function() function) {
     return GestureDetector(
-      onTap: () {
-        // Add your onTap logic here
-        function();
-      },
+      onTap: function,
       child: Container(
         height: 40,
         width: double.infinity,
         decoration: BoxDecoration(
-          color: Color(0xFF328E6E),
+          color: AppColors.primary,
           borderRadius: BorderRadius.circular(15),
         ),
         child: Center(

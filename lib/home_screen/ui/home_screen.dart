@@ -11,6 +11,7 @@ import 'package:online_shop/features/home/ui/home.dart';
 import 'package:online_shop/features/order_history/ui/order_history.dart';
 import 'package:online_shop/features/profile/bloc/profile_bloc.dart';
 import 'package:online_shop/features/profile/ui/profile.dart';
+import 'package:online_shop/features/wrapper/ui/wrapper.dart';
 import 'package:online_shop/home_screen/bloc/home_screen_bloc.dart';
 import 'package:online_shop/models/user.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -50,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
-  void dispose(){
+  void dispose() {
     _homeScreenBloc.close();
     super.dispose();
   }
@@ -166,6 +167,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   title: const Text('Logout'),
                   onTap: () {
                     _homeScreenBloc.add(HomeScreenLogoutEvent());
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const Wrapper(),
+                      ), // Replace with your Wrapper
+                      (route) => false,
+                    );
                   },
                 ),
               ],
@@ -181,8 +189,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 return const Cart();
               case 3:
                 return BlocProvider(
-                  create: (context) =>
-                      ProfileBloc(userDatabase: UserDatabase(uid: FirebaseAuth.instance.currentUser!.uid)),
+                  create:
+                      (context) => ProfileBloc(
+                        userDatabase: UserDatabase(
+                          uid: FirebaseAuth.instance.currentUser!.uid,
+                        ),
+                      ),
                   child: const Profile(),
                 );
               default:

@@ -3,24 +3,30 @@ part of 'login_bloc.dart';
 @immutable
 abstract class LoginState {
   final bool isPasswordObscured;
-  const LoginState({this.isPasswordObscured = true});
+  LoginState({required this.isPasswordObscured});
 }
 
 abstract class LoginActionState extends LoginState {
-  const LoginActionState({super.isPasswordObscured});
+  LoginActionState({required super.isPasswordObscured});
 }
 
 class LoginInitial extends LoginState {
-  const LoginInitial({required super.isPasswordObscured});
+  LoginInitial({required super.isPasswordObscured});
 }
 
 class LoginLoading extends LoginState {
-  const LoginLoading({super.isPasswordObscured});
+  LoginLoading({required super.isPasswordObscured});
 }
 
 class LoginFailure extends LoginActionState {
   final String error;
-  const LoginFailure({required this.error, super.isPasswordObscured});
+  LoginFailure({required this.error, required super.isPasswordObscured});
 }
 
-class LoginNavigateToSignUp extends LoginActionState {}
+class LoginNavigateToSignUp extends LoginActionState {
+  LoginNavigateToSignUp({required super.isPasswordObscured});
+}
+
+class LoginSuccess extends LoginActionState {
+  LoginSuccess({required super.isPasswordObscured});
+}
