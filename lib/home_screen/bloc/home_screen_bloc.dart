@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:online_shop/database/database_calls.dart';
+import 'package:online_shop/features/profile/cached_data/shared_prefs.dart';
 
 part 'home_screen_event.dart';
 part 'home_screen_state.dart';
@@ -22,6 +23,7 @@ class HomeScreenBloc extends Bloc<HomeScreenEvent, HomeScreenState> {
     HomeScreenLogoutEvent event,
     Emitter<HomeScreenState> emit,
   ) {
+    SharedPrefs.clearUserData();
     Database().signOut();
   }
 
