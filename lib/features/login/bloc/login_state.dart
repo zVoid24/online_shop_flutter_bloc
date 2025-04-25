@@ -3,7 +3,7 @@ part of 'login_bloc.dart';
 @immutable
 abstract class LoginState {
   final bool isPasswordObscured;
-  LoginState({required this.isPasswordObscured});
+  const LoginState({required this.isPasswordObscured});
 }
 
 abstract class LoginActionState extends LoginState {
